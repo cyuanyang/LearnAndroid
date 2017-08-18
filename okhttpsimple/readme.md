@@ -31,7 +31,7 @@ HttpUrl包含scheme host port 等信息
 
 ##### 新建一个Call并同步执行
 
-    1.client.newCall(request)
+###### 1.client.newCall(request)
        ```
        @Override public Call newCall(Request request) {
            return new RealCall(this, request, false /* for web socket */);
@@ -52,8 +52,9 @@ HttpUrl包含scheme host port 等信息
            this.eventListener = eventListenerFactory.create(this);
          }
        ```
-    ********
-    2.RealCall.execute()
+
+********
+##### 2.RealCall.execute()
     这里面同步执行请求，主要是getResponseWithInterceptorChain()。
 
     ```
@@ -81,19 +82,46 @@ HttpUrl包含scheme host port 等信息
     RetryAndFollowUpInterceptor>BridgeInterceptor>CacheInterceptor>ConnectInterceptor>CallServerInterceptor
 
 *******
-    3.RetryAndFollowUpInterceptor.intercept()
+##### 3.RetryAndFollowUpInterceptor.intercept()
     ```
     streamAllocation = new StreamAllocation(
                    client.connectionPool(), createAddress(request.url()), callStackTrace);
     ```
     创建Address，并用它来创建StreamAllocation。StreamAllocation组织Connections，Streams和Calls的关系。
-
+    然后执行
     ```
     response = ((RealInterceptorChain) chain).proceed(request, streamAllocation, null, null);
     ```
     这个会将创建好的streamAllocation传递给BridgeInterceptor的intercept()方法
-    *******
-    4.BridgeInterceptor.intercept()
-    
+
+*******
+##### 4.BridgeInterceptor.intercept()
+    这个拦截器的主要功能是：
+    > 处理请求头（header），将自定义的头和协议必须的头合在一起，
+    如果有自定义使用自定义的，没有就生成默认头
+    > 处理cookie
+
+    头部信息处理完毕后 执行
+    ```
+    Response networkResponse = chain.proceed(requestBuilder.build());
+    ```
+    将处理后的新Request传递给下一个拦截器
+
+*******
+##### 5.CacheInterceptor.intercept()
+
+     本拦截器主要是处理缓存的。
+
+     执行
+
+    ```
+    networkResponse = chain.proceed(networkRequest);
+    ```
+    将处理后的新Request传递给下一个拦截器
+
+##### 6.ConnectInterceptor.intercept()
+
+
+
 
 
