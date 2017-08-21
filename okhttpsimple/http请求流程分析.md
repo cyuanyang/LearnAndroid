@@ -115,6 +115,7 @@ HttpUrl包含scheme host port 等信息
     ```
     将处理后的新Request传递给下一个拦截器
 
+********
 ##### 6.ConnectInterceptor.intercept()
 
     本拦截器主要是建立RealConnection并从这个连接中读取数据流，这个RealConnection可能是新创建的也可能是从缓存池中得到的，
@@ -126,25 +127,29 @@ HttpUrl包含scheme host port 等信息
    ```
     最后将HttpCodec和RealConnection传递给最后一个拦截器。
 
-
+********
 ##### 7.CallServerInterceptor.intercept()
 
     本拦截器是最后一个，主要功能是根据RealConnection和HttpCodec组装Response，并将Response返回给6的拦截器
 
+********
 ##### 8.ConnectInterceptor.intercept()方法中 proceed 之后的代码
 
     得到返回值之后没有任何操作直接返回给上级CacheInterceptor
 
+********
 ##### 9.CacheInterceptor.intercept()方法中 proceed 之后的代码
 
     得到由ConnectInterceptor返回的Response 根据缓存策略将其缓存起来，之后返回改Response
 
+********
 ##### 10.BridgeInterceptor.intercept()方法中 proceed 之后的代码
 
     得到CacheInterceptor返回的Response 将之前组装的Request给Response并返回改Response
     如果请求头有其他对Response的配置，还会按照请求头的配置对Response做相应的处理
     最后将处理好的Response返回
 
+********
 ##### 11.RetryAndFollowUpInterceptor.intercept()方法中 proceed 之后的代码
 
     得到BridgeInterceptor返回的Response ，
@@ -152,6 +157,7 @@ HttpUrl包含scheme host port 等信息
     如果是从定向则从 *3* 重新开始
     如果返回正常的Response，最后返回Response
 
+********
 ##### 12.RealCall#getResponseWithInterceptorChain()
     该方法得到RetryAndFollowUpInterceptor返回的Response
 
