@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.cyy.okhttpsimple.MainActivity">
+    tools:context="com.cyy.okhttpsimple.InterceptorActivity">
 
     <Button
-        android:id="@+id/httpSimple"
+        android:id="@+id/button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Http simple"
+        android:text="Button"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="8dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -18,17 +18,14 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="8dp" />
 
-
-    <Button
-        android:id="@+id/interceptorSimple"
+    <TextView
+        android:id="@+id/textView"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="interceptor Simple"
+        android:layout_height="16dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/button"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="8dp"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="8dp"
-        app:layout_constraintHorizontal_bias="0.0"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/httpSimple" />
+        android:layout_marginStart="8dp" />
 </android.support.constraint.ConstraintLayout>

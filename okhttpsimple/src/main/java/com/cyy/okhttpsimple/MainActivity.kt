@@ -1,5 +1,6 @@
 package com.cyy.okhttpsimple
 
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_main.*
@@ -21,8 +22,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var list = Collections.unmodifiableList(ArrayList<String>())
-
         //http simple
         httpSimple.setOnClickListener {
             var request = Request.Builder()
@@ -31,15 +30,19 @@ class MainActivity : AppCompatActivity() {
 
             Thread(Runnable {
 
-
-
                 client.newCall(request).execute().use {
                     print(" body == ${it.body()!!.string()}")
                 }
 
             }).start()
         }
+        //interceptorSimple
+        interceptorSimple.setOnClickListener {
+            startActivity(Intent(this@MainActivity , InterceptorActivity::class.java))
+        }
 
     }
+
+
 
 }
