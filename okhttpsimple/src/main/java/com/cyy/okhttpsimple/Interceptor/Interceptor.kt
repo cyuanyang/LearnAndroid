@@ -9,9 +9,15 @@ package com.cyy.okhttpsimple.Interceptor
 interface Interceptor{
 
     fun intercept(chain:Chain) : Response
-
+    
     interface Chain{
+
         fun proceed(request:Request):Response
+    }
+
+    interface ChainCallback{
+        fun proceedBefore(info:String)
+        fun proceedAfter(info:String)
     }
 }
 

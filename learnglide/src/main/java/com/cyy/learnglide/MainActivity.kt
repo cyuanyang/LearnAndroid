@@ -3,6 +3,7 @@ package com.cyy.learnglide
 import android.app.Activity
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +13,12 @@ import android.widget.ImageView
 import android.widget.ListView
 import android.widget.RelativeLayout
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import kotlinx.android.extensions.CacheImplementation
+import kotlinx.android.extensions.ContainerOptions
+import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.synthetic.*
 import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,6 +35,7 @@ class MainActivity : AppCompatActivity() {
 
 val Activity.cyy:Int
     get() = 1111
+
 
 class  MyAdapter : BaseAdapter(){
 
@@ -53,13 +60,12 @@ class  MyAdapter : BaseAdapter(){
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_image , parent , false)
-
-        var imageView:ImageView = view.findViewById(R.id.imageView) as ImageView
-        GlideApp.with(parent.context)
-                .load(list[position])
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
-                .into(imageView)
+        var holder = MyViewHolder(view)
+//        GlideApp.with(parent.context)
+//                .load(list[position])
+//                .diskCacheStrategy(DiskCacheStrategy.NONE)
+//                .skipMemoryCache(true)
+//                .into(imageView)
         return view
     }
 
@@ -75,5 +81,9 @@ class  MyAdapter : BaseAdapter(){
         return list.size
     }
 
+    class MyViewHolder(override val containerView: View):RecyclerView.ViewHolder(containerView) ,LayoutContainer{
+        fun bind(){
+        }
+    }
 
 }
