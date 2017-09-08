@@ -15,7 +15,8 @@ class MainActivity : AppCompatActivity() {
     companion object {
 
         val client:OkHttpClient = OkHttpClient()
-                .newBuilder().build()
+                .newBuilder()
+                .build()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
