@@ -30,7 +30,7 @@ class Response{
     var param2:String?=null
 
     override fun toString(): String {
-        return with(this){
+        with(this){
             return "body = $body param1=$param1 param2=$param2"
         }
     }
@@ -44,7 +44,7 @@ class Request{
     var param2:String?=null
 
     override fun toString(): String {
-        return with(this){
+        with(this){
             return "body = $body param1=$param1 param2=$param2"
         }
     }

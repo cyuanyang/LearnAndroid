@@ -36,6 +36,8 @@ class RefreshLayout @JvmOverloads constructor(
             value?.let { addHeaderLayout(it) }
         }
 
+    var dragRate:Float = 0.5f //下拉时的距离系数
+
     private var headerView:View? = null
     private var mContentView:View? = null
     var mTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
@@ -44,6 +46,7 @@ class RefreshLayout @JvmOverloads constructor(
     private var mInitDownY:Int = 0 //按下时的位置
     private var mInitLocation:Int = 0 //开始下拉时的手指位置
     private var mIsBeginDrag = false
+    private var isRefresh = false
     val mScrollCallback:ScrollCallback? = null
 
     init {
@@ -130,16 +133,18 @@ class RefreshLayout @JvmOverloads constructor(
             }
             MotionEvent.ACTION_MOVE -> {
                 val y = event.y
-                val offset = y-mInitLocation
+                val offset = (y-mInitLocation) * dragRate
                 offsetHeaderView(offset)
                 mInitLocation = y.toInt()
             }
-            MotionEvent.ACTION_UP,
-            MotionEvent.ACTION_CANCEL-> {
+            MotionEvent.ACTION_UP -> {
                 mInitDownY = 0
                 mInitLocation = 0
                 mIsBeginDrag = false
-                reset()
+                isIntoRefresh()
+            }
+            MotionEvent.ACTION_CANCEL-> {
+
             }
         }
         return super.onTouchEvent(event)
@@ -151,6 +156,22 @@ class RefreshLayout @JvmOverloads constructor(
         ViewCompat.offsetTopAndBottom(mContentView , offset.toInt())
         val dis = ViewCompat.getY(mContentView).toInt()
         dispatchHeaderScrollEvent(dis)
+    }
+
+    //是否进入刷新状态
+    private fun isIntoRefresh() {
+        refreshHeader?.let {
+            val headerHeight = it.getHeaderHeight()
+            val dis = ViewCompat.getY(mContentView).toInt()
+            if (dis>headerHeight){
+                isRefresh = true
+                ViewCompat.offsetTopAndBottom(headerView , headerHeight-dis)
+                ViewCompat.offsetTopAndBottom(mContentView , headerHeight-dis)
+            }else{
+                isRefresh = false
+            }
+        }
+
     }
 
     private fun reset(){
@@ -165,7 +186,9 @@ class RefreshLayout @JvmOverloads constructor(
     }
 
     private fun dispatchHeaderScrollEvent(dis:Int){
-
+        if (dis > refreshHeader!!.getHeaderHeight()){
+            isRefresh = true
+        }
         mScrollCallback?.scroll(dis)
     }
 

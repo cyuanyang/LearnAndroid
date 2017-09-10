@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import com.cyy.okhttpsimple.Interceptor.*
 import kotlinx.android.synthetic.main.activity_interceptor.*
-import kotlin.coroutines.experimental.EmptyCoroutineContext.plus
 
 inline fun _log(msg:String){
     Log.e("log" , msg)
