@@ -24,6 +24,11 @@ internal fun ViewGroup.eachChildren(block:(position:Int, child: View)->Unit){
     }
 }
 
+enum class RefreshState{
+    IDLE , //空闲状态
+    REFRESHING , //正在处在刷新的状态
+}
+
 //RefreshLayout
 class RefreshLayout @JvmOverloads constructor(
         context: Context, attrs: AttributeSet?, defStyleAttr: Int
@@ -39,7 +44,7 @@ class RefreshLayout @JvmOverloads constructor(
         }
 
     var dragRate:Float = 0.5f //下拉时的距离系数
-    var animateInterval= 500L //动画的时间间隔
+    var animateInterval= 200L //动画的时间间隔
 
     private var headerView:View? = null
     private var mContentView:View? = null
@@ -49,12 +54,12 @@ class RefreshLayout @JvmOverloads constructor(
     private var mInitDownY:Int = 0 //按下时的位置
     private var mInitLocation:Int = 0 //开始下拉时的手指位置
     private var mIsBeginDrag = false
-    private var isRefresh = false
-    val mScrollCallback:ScrollCallback? = null
+    private var state:RefreshState = RefreshState.IDLE
+    var mScrollCallback:ScrollCallback? = null
+    var mRefreshListener:RefreshListener? = null
 
     init {
     }
-
 
     override fun onFinishInflate() {
         super.onFinishInflate()
@@ -107,11 +112,10 @@ class RefreshLayout @JvmOverloads constructor(
                 mInitDownY = ev.y.toInt()
             }
             MotionEvent.ACTION_MOVE -> {
-                var y = ev.y
+                val y = ev.y
                 val yDiff = y - mInitDownY
                 log("yDiff = $yDiff .... $mTouchSlop")
                 if (yDiff>mTouchSlop && !mIsBeginDrag){
-                    log("2222222222")
                     mIsBeginDrag = true
                     mInitLocation = y.toInt()
                 }
@@ -167,15 +171,17 @@ class RefreshLayout @JvmOverloads constructor(
             val headerHeight = it.getHeaderHeight()
             val dis = getScrollEffectiveDistance()
             if (dis>headerHeight){
-                isRefresh = true
+                state = RefreshState.REFRESHING
                 smoothScrollTo(headerHeight)
+
+                mRefreshListener?.onRefresh(this)
             }else{
-                isRefresh = false
+                state = RefreshState.IDLE
                 smoothScrollTo(0)
             }
         }
     }
-    
+
     private fun smoothScrollTo(y:Int){
         val startY = getScrollEffectiveDistance()
         val oa = ObjectAnimator.ofInt(startY , y)
@@ -216,10 +222,15 @@ class RefreshLayout @JvmOverloads constructor(
     }
 
     private fun dispatchHeaderScrollEvent(dis:Int){
-        if (dis > refreshHeader!!.getHeaderHeight()){
-            isRefresh = true
-        }
         mScrollCallback?.scroll(dis)
+    }
+
+    //结束滑动
+    fun endRefresh(){
+        state = RefreshState.IDLE
+        log("结束刷新")
+        smoothScrollTo(0)
+        reset()
     }
 
     private fun log(msg:String){
