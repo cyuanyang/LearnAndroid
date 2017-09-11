@@ -1,5 +1,6 @@
 package com.cyy.refresh.refresh
 
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.support.v4.view.*
 import android.util.AttributeSet
@@ -8,6 +9,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.AbsListView
 import android.widget.FrameLayout
 
@@ -37,6 +39,7 @@ class RefreshLayout @JvmOverloads constructor(
         }
 
     var dragRate:Float = 0.5f //下拉时的距离系数
+    var animateInterval= 500L //动画的时间间隔
 
     private var headerView:View? = null
     private var mContentView:View? = null
@@ -162,16 +165,38 @@ class RefreshLayout @JvmOverloads constructor(
     private fun isIntoRefresh() {
         refreshHeader?.let {
             val headerHeight = it.getHeaderHeight()
-            val dis = ViewCompat.getY(mContentView).toInt()
+            val dis = getScrollEffectiveDistance()
             if (dis>headerHeight){
                 isRefresh = true
-                ViewCompat.offsetTopAndBottom(headerView , headerHeight-dis)
-                ViewCompat.offsetTopAndBottom(mContentView , headerHeight-dis)
+                smoothScrollTo(headerHeight)
             }else{
                 isRefresh = false
+                smoothScrollTo(0)
             }
         }
+    }
+    
+    private fun smoothScrollTo(y:Int){
+        val startY = getScrollEffectiveDistance()
+        val oa = ObjectAnimator.ofInt(startY , y)
+        oa.duration = animateInterval
+        oa.interpolator = AccelerateDecelerateInterpolator()
+        oa.start()
+        oa.addUpdateListener { animation ->
+            val value = animation.animatedValue as Int
+            moveTo(value)
+        }
+    }
 
+    //移动view
+    private fun moveBy(dis:Int){
+        ViewCompat.offsetTopAndBottom(headerView , dis)
+        ViewCompat.offsetTopAndBottom(mContentView , dis)
+    }
+
+    private fun moveTo(to:Int){
+        val y = getScrollEffectiveDistance()
+        moveBy(to - y)
     }
 
     private fun reset(){
@@ -183,6 +208,11 @@ class RefreshLayout @JvmOverloads constructor(
     //内部的View是否还能往上滑动
     fun canChildScrollUp(): Boolean {
         return ViewCompat.canScrollVertically(mContentView, -1)
+    }
+
+    //获取有效的滑动距离
+    fun getScrollEffectiveDistance():Int{
+        return ViewCompat.getY(mContentView).toInt()
     }
 
     private fun dispatchHeaderScrollEvent(dis:Int){
