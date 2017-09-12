@@ -55,12 +55,10 @@ class RefreshLayout @JvmOverloads constructor(
     private var mInitLocation:Int = 0 //开始下拉时的手指位置
     private var mIsBeginDrag = false
     private var state:RefreshState = RefreshState.IDLE
-    private var mRefreshScroll = false  //刷新时的滚动
     var mScrollCallback:ScrollCallback? = null
     var mRefreshListener:RefreshListener? = null
 
-    init {
-    }
+    init { }
 
     override fun onFinishInflate() {
         super.onFinishInflate()
@@ -70,15 +68,6 @@ class RefreshLayout @JvmOverloads constructor(
 
         mContentView = getChildAt(0)
     }
-
-//    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-//        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-//        if (mContentView==null)return
-//        mContentView!!.measure(MeasureSpec.makeMeasureSpec(
-//                measuredWidth - paddingLeft - paddingRight,
-//                MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(
-//                measuredHeight - paddingTop - paddingBottom, MeasureSpec.EXACTLY))
-//    }
 
     private fun addHeaderLayout(refreshHeader:RefreshHeader){
         val headerHeight = refreshHeader.getHeaderHeight()
@@ -98,20 +87,23 @@ class RefreshLayout @JvmOverloads constructor(
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-
-        log("ev === $ev")
+        var handle = false
         val action = ev.action
-        when(action){
-            MotionEvent.ACTION_DOWN -> {
-                mInitDownY = ev.y.toInt()
-                mInitLocation = ev.y.toInt()
-            }
-            MotionEvent.ACTION_MOVE -> {
-
-            }
+        if (action == MotionEvent.ACTION_DOWN ){
+            mInitDownY = ev.y.toInt()
+            mInitLocation = ev.y.toInt()
         }
-
-        return super.dispatchTouchEvent(ev)
+        /*
+          当处在刷新的状态的时候，这个时候在滑动列表，应当将事件分发给自己
+          当头部滑出可见区域后在将事件分发下去
+        */
+        if (state == RefreshState.REFRESHING
+                && getScrollEffectiveDistance()>0){
+            this.onTouchEvent(ev)
+        }else{
+        }
+        handle = super.dispatchTouchEvent(ev)
+        return handle
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
@@ -146,16 +138,6 @@ class RefreshLayout @JvmOverloads constructor(
         return mIsBeginDrag
     }
 
-    override fun onStartNestedScroll(child: View?, target: View?, nestedScrollAxes: Int): Boolean {
-        return true
-    }
-
-    override fun onNestedScroll(target: View?, dxConsumed: Int, dyConsumed: Int, dxUnconsumed: Int, dyUnconsumed: Int) {
-        super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed)
-        log("dddddd")
-
-    }
-
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val action = event.action
         when(action){
@@ -164,7 +146,7 @@ class RefreshLayout @JvmOverloads constructor(
             }
             MotionEvent.ACTION_MOVE -> {
                 val y = event.y
-                if (mRefreshScroll){
+                if (state == RefreshState.REFRESHING){
                     val offset = y-mInitLocation
                     refreshScroll(offset)
                 }else{
@@ -177,7 +159,7 @@ class RefreshLayout @JvmOverloads constructor(
             MotionEvent.ACTION_UP -> {
                 mInitLocation = 0
                 mIsBeginDrag = false
-                if (!mRefreshScroll){
+                if (state != RefreshState.REFRESHING){
                     isIntoRefresh()
                 }
             }
@@ -185,21 +167,54 @@ class RefreshLayout @JvmOverloads constructor(
 
             }
         }
-        return super.onTouchEvent(event)
+        return true
     }
 
+    /**
+     * 刷新时的滚动
+     *
+     * 刷新的时候header 和 ContentView 需要同时滚动
+     *
+     * scroll fling
+     */
     private fun refreshScroll(offset:Float){
         if (offset == 0F) return
-        ViewCompat.offsetTopAndBottom(headerView , offset.toInt())
-        ViewCompat.offsetTopAndBottom(mContentView , offset.toInt())
+        moveBy(canRefreshScrollOffset(offset).toInt())
+
+//        ViewCompat.offsetTopAndBottom(headerView , offset.toInt())
+//        ViewCompat.offsetTopAndBottom(mContentView , offset.toInt())
+    }
+
+    private fun canRefreshScrollOffset(offset: Float):Float{
+        var realOffset = offset
+        val currentDis = getScrollEffectiveDistance()
+        refreshHeader?.let {
+            val headerHeight = it.getHeaderHeight()
+            return if (realOffset>=0
+                    && currentDis+realOffset > headerHeight){
+                headerHeight - currentDis.toFloat()
+            }else if (currentDis + realOffset < 0){
+                0 - currentDis.toFloat()
+            } else{
+                realOffset
+            }
+        }
+        return 0f
     }
 
     private fun offsetHeaderView(offset:Float){
         if (offset == 0F)return
-        ViewCompat.offsetTopAndBottom(headerView , offset.toInt())
-        ViewCompat.offsetTopAndBottom(mContentView , offset.toInt())
-        val dis = ViewCompat.getY(mContentView).toInt()
-        dispatchHeaderScrollEvent(dis)
+
+        val preDis = getScrollEffectiveDistance()
+        if (preDis < 0){
+            return
+        }
+        var realOffset = offset.toInt()
+        if (preDis+offset<0){
+            realOffset = 0 - preDis
+        }
+        moveBy(realOffset)
+        dispatchHeaderScrollEvent(getScrollEffectiveDistance())
     }
 
     //是否进入刷新状态
@@ -210,7 +225,6 @@ class RefreshLayout @JvmOverloads constructor(
             if (dis>headerHeight){
                 state = RefreshState.REFRESHING
                 smoothScrollTo(headerHeight)
-
                 mRefreshListener?.onRefresh(this)
             }else{
                 state = RefreshState.IDLE
@@ -259,6 +273,7 @@ class RefreshLayout @JvmOverloads constructor(
     }
 
     private fun dispatchHeaderScrollEvent(dis:Int){
+        log("dis = $dis")
         mScrollCallback?.scroll(dis)
     }
 

@@ -20,13 +20,13 @@ class MainActivity : AppCompatActivity() {
         var adapter = ArrayAdapter(this , android.R.layout.simple_list_item_1 , arr)
         listView.adapter = adapter
 
-        refreshLayout.mRefreshListener = object : RefreshListener{
-            override fun onRefresh(refreshLayout: RefreshLayout) {
-
-                refreshLayout.postDelayed({
-                    refreshLayout.endRefresh()
-                } , 2000)
-            }
-        }
+//        refreshLayout.mRefreshListener = object : RefreshListener{
+//            override fun onRefresh(refreshLayout: RefreshLayout) {
+//
+//                refreshLayout.postDelayed({
+//                    refreshLayout.endRefresh()
+//                } , 2000)
+//            }
+//        }
     }
 }
