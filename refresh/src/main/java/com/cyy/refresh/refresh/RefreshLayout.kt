@@ -50,7 +50,6 @@ class RefreshLayout @JvmOverloads constructor(
     private var mContentView:View? = null
     var mTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
 
-
     private var mInitDownY:Int = 0 //按下时的位置
     private var mInitLocation:Int = 0 //开始下拉时的手指位置
     private var mIsBeginDrag = false
@@ -169,7 +168,7 @@ class RefreshLayout @JvmOverloads constructor(
         }
         return true
     }
-
+    
     /**
      * 刷新时的滚动
      *
@@ -180,9 +179,6 @@ class RefreshLayout @JvmOverloads constructor(
     private fun refreshScroll(offset:Float){
         if (offset == 0F) return
         moveBy(canRefreshScrollOffset(offset).toInt())
-
-//        ViewCompat.offsetTopAndBottom(headerView , offset.toInt())
-//        ViewCompat.offsetTopAndBottom(mContentView , offset.toInt())
     }
 
     private fun canRefreshScrollOffset(offset: Float):Float{
