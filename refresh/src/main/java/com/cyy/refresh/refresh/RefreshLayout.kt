@@ -55,6 +55,7 @@ class RefreshLayout @JvmOverloads constructor(
     private var mInitLocation:Int = 0 //开始下拉时的手指位置
     private var mIsBeginDrag = false
     private var state:RefreshState = RefreshState.IDLE
+    private var mRefreshScroll = false  //刷新时的滚动
     var mScrollCallback:ScrollCallback? = null
     var mRefreshListener:RefreshListener? = null
 
@@ -96,16 +97,30 @@ class RefreshLayout @JvmOverloads constructor(
         }
     }
 
-    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
 
+        log("ev === $ev")
         val action = ev.action
+        when(action){
+            MotionEvent.ACTION_DOWN -> {
+                mInitDownY = ev.y.toInt()
+                mInitLocation = ev.y.toInt()
+            }
+            MotionEvent.ACTION_MOVE -> {
 
-        if (action == MotionEvent.ACTION_DOWN){
-            mInitDownY = ev.y.toInt()
+            }
         }
-        if (canChildScrollUp()){
+
+        return super.dispatchTouchEvent(ev)
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        val action = ev.action
+        if (canChildScrollUp()) {
+            log("还可以向上滑动")
             return false
         }
+        log("到达顶部")
 
         when(action){
             MotionEvent.ACTION_DOWN -> {
@@ -131,30 +146,52 @@ class RefreshLayout @JvmOverloads constructor(
         return mIsBeginDrag
     }
 
+    override fun onStartNestedScroll(child: View?, target: View?, nestedScrollAxes: Int): Boolean {
+        return true
+    }
+
+    override fun onNestedScroll(target: View?, dxConsumed: Int, dyConsumed: Int, dxUnconsumed: Int, dyUnconsumed: Int) {
+        super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed)
+        log("dddddd")
+
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val action = event.action
         when(action){
             MotionEvent.ACTION_DOWN -> {
-                mInitDownY = event.y.toInt()
 
             }
             MotionEvent.ACTION_MOVE -> {
                 val y = event.y
-                val offset = (y-mInitLocation) * dragRate
-                offsetHeaderView(offset)
+                if (mRefreshScroll){
+                    val offset = y-mInitLocation
+                    refreshScroll(offset)
+                }else{
+                    val offset = (y-mInitLocation) * dragRate
+                    offsetHeaderView(offset)
+                }
                 mInitLocation = y.toInt()
+
             }
             MotionEvent.ACTION_UP -> {
-                mInitDownY = 0
                 mInitLocation = 0
                 mIsBeginDrag = false
-                isIntoRefresh()
+                if (!mRefreshScroll){
+                    isIntoRefresh()
+                }
             }
             MotionEvent.ACTION_CANCEL-> {
 
             }
         }
         return super.onTouchEvent(event)
+    }
+
+    private fun refreshScroll(offset:Float){
+        if (offset == 0F) return
+        ViewCompat.offsetTopAndBottom(headerView , offset.toInt())
+        ViewCompat.offsetTopAndBottom(mContentView , offset.toInt())
     }
 
     private fun offsetHeaderView(offset:Float){
