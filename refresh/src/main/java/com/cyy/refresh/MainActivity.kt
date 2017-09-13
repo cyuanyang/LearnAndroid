@@ -16,7 +16,12 @@ class MainActivity : AppCompatActivity() {
 
         refreshLayout.refreshHeader = RefreshHeaderLayout(this)
 
-        var arr = arrayOf("1","2","3","4","1","2","3","4","1","2","3","4","1","2","3","4")
+        val count = 1000
+        var arr = arrayOfNulls<Int>(count)
+        for (i in (0 until count)){
+            arr[i] = i
+        }
+
         var adapter = ArrayAdapter(this , android.R.layout.simple_list_item_1 , arr)
         listView.adapter = adapter
 
