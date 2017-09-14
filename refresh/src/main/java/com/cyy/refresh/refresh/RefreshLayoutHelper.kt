@@ -6,7 +6,6 @@ import android.view.VelocityTracker
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.widget.ListView
-import android.widget.OverScroller
 import android.widget.Scroller
 import android.widget.ScrollView
 import android.os.Build
@@ -47,26 +46,58 @@ internal class RefreshLayoutHelper(context:Context) {
             mScroller.abortAnimation()
     }
 
+    /**
+     * 在刷新的状态的时候  需要header部分和下面的Content部分看起来像一个完成的列表
+     *
+     * 所以这里只有处在刷新的状态的时候才会执行
+     *
+     * 这里的逻辑
+     * 1. 当header部分可见的时候 ， 滑动整个RefreshLayout header 和 content 一起做拖动,fling运动
+     * 2. 向上拖动的时候，当header滚动到屏幕外面的时候，Scroller将放弃此次计算滚动 将这个计算放弃这一时刻的滚动状态
+     * 传给可以滚动的ContentView,让ContentView继续滚动
+     * 3. 向下拖动的时候，当mContentView 若滑动到了顶部，这时候将Scroller的滚动状态传给header，让header继续滚动，
+     * 同时终止向ContentView分发事件
+     */
     fun computeScroll(refreshLayout: RefreshLayout){
         if (mScroller.computeScrollOffset()){
             val currY = mScroller.currY
             var deltaY = (currY - mLastY)
             val scrollY = refreshLayout.getScrollEffectiveDistance()
-            if (scrollY > -refreshLayout.mHeaderHeight){
+            log("currY = $currY  deltaY = $deltaY  scrollY = $scrollY")
+            if (scrollY > -refreshLayout.mHeaderHeight
+                    && scrollY < 0){
+                //1.
                 if (scrollY - deltaY < -refreshLayout.mHeaderHeight){
                     deltaY = refreshLayout.mHeaderHeight + scrollY
+                    mScroller.abortAnimation()
                 }
                 refreshLayout.scrollBy(0 , -deltaY)
-                ViewCompat.postInvalidateOnAnimation(refreshLayout)
+
                 mLastY = currY
             }else{
-                mScroller.abortAnimation()
+                //2.
+                if (deltaY<0){
+                    val distance = mScroller.finalY - currY
+                    val duration = mScroller.getDuration()- mScroller.timePassed()
+                    //test : we presume that content is a list view
+                    val listView = refreshLayout.mContentView as ListView
+
+                    smoothScrollBy(listView , mScroller.currVelocity.toInt(), distance, duration)
+                    mScroller.abortAnimation()
+                }else{
+                    //3.
+                    if (!refreshLayout.canChildScrollUp()){
+                        if (scrollY - deltaY < -refreshLayout.mHeaderHeight){
+                            deltaY = refreshLayout.mHeaderHeight + scrollY
+                            mScroller.abortAnimation()
+                        }
+                        refreshLayout.scrollBy(0 , -deltaY)
+                    }
+                }
             }
 
-//            val distance = mScroller.finalY - currY
-//            val duration = mScroller.getDuration()- mScroller.timePassed()
-//            val listView = refreshLayout.mContentView as ListView
-//            smoothScrollBy(listView , mScroller.currVelocity.toInt(), distance, duration)
+            mLastY = currY
+            ViewCompat.postInvalidateOnAnimation(refreshLayout)
         }
     }
 
@@ -84,13 +115,13 @@ internal class RefreshLayoutHelper(context:Context) {
         }
     }
 
-
     fun fling(startX: Int, startY: Int, minX: Int, maxX: Int, minY: Int, maxY: Int){
         mVelocityTracker?.let {
             it.computeCurrentVelocity(1000 , MXN_VELOCITY.toFloat())
             val vy = it.yVelocity
             if (Math.abs(vy) > MIN_VELOCITY){
                 mLastY = startY
+                log("flying  starty === $startY")
                 mScroller.fling(startX , startY ,0 , vy.toInt(), minX , maxX , minY , maxY)
             }
         }

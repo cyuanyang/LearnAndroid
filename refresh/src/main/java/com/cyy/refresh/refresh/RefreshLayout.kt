@@ -100,7 +100,7 @@ class RefreshLayout @JvmOverloads constructor(
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-
+        mScrollHelper.initVelocityTrackerIfNotExists(ev)
         var handle = false
         val action = ev.action
 
@@ -108,6 +108,23 @@ class RefreshLayout @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 mInitDownY = ev.y.toInt()
                 mInitLocation = ev.y.toInt()
+                mScrollHelper.abortAnimationFinished()
+            }
+            MotionEvent.ACTION_UP -> {
+                if (state == RefreshState.REFRESHING){
+                    if (getScrollEffectiveDistance() < -mHeaderHeight){
+                        smoothScrollTo(-mHeaderHeight)
+                    }else{
+                        //处在刷新的状态的时候 要处理fling 动作
+                        scrollState = ScrollState.FILING
+                        mScrollHelper.fling(0 , scrollY , 0 , 0 , -Int.MAX_VALUE , Int.MAX_VALUE )
+                        ViewCompat.postInvalidateOnAnimation(this)
+                        mScrollHelper.recycleVelocityTracker()
+                    }
+                }
+            }
+            MotionEvent.ACTION_CANCEL->{
+                mScrollHelper.recycleVelocityTracker()
             }
         }
         /*
@@ -155,12 +172,9 @@ class RefreshLayout @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        mScrollHelper.initVelocityTrackerIfNotExists(event)
         val action = event.action
         when(action){
-            MotionEvent.ACTION_DOWN -> {
-                mScrollHelper.abortAnimationFinished()
-            }
+            MotionEvent.ACTION_DOWN -> { }
             MotionEvent.ACTION_MOVE -> {
                 val y = event.y
                 if (state == RefreshState.REFRESHING){
@@ -177,14 +191,14 @@ class RefreshLayout @JvmOverloads constructor(
                 mInitLocation = 0
                 mIsBeginDrag = false
                 if (state == RefreshState.REFRESHING){
-                    if (getScrollEffectiveDistance() < -mHeaderHeight){
-                        smoothScrollTo(-mHeaderHeight)
-                    }else{
-                        //处在刷新的状态的时候 要处理fling 动作
-                        scrollState = ScrollState.FILING
-                        mScrollHelper.fling(0 , scrollY , 0 , 0 , -Int.MAX_VALUE , Int.MAX_VALUE )
-                        mScrollHelper.recycleVelocityTracker()
-                    }
+//                    if (getScrollEffectiveDistance() < -mHeaderHeight){
+//                        smoothScrollTo(-mHeaderHeight)
+//                    }else{
+//                        //处在刷新的状态的时候 要处理fling 动作
+//                        scrollState = ScrollState.FILING
+//                        mScrollHelper.fling(0 , scrollY , 0 , 0 , -Int.MAX_VALUE , Int.MAX_VALUE )
+//                        mScrollHelper.recycleVelocityTracker()
+//                    }
                 }else{
                     isIntoRefresh()
                 }
