@@ -5,10 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.cyy.refresh.MainActivity">
+
+    <Button
+        android:id="@+id/listViewBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="List View "/>
     <com.cyy.refresh.refresh.RefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
         <!--<android.support.v4.widget.SwipeRefreshLayout-->
             <!--android:layout_width="match_parent"-->
             <!--android:layout_height="match_parent">-->
