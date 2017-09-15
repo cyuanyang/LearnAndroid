@@ -8,6 +8,8 @@ import android.view.View
 import android.widget.LinearLayout
 import com.cyy.refresh.R
 import com.cyy.refresh.refresh.RefreshHeader
+import com.cyy.refresh.refresh.RefreshLayout
+import com.cyy.refresh.refresh.RefreshState
 import kotlinx.android.synthetic.main.header_default_layout.view.*
 
 /**
@@ -15,27 +17,25 @@ import kotlinx.android.synthetic.main.header_default_layout.view.*
  *
  */
 
-class RefreshHeaderLayout @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet?, defStyleAttr: Int
-) : LinearLayout(context, attrs, defStyleAttr) , RefreshHeader{
 
-    constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-
-    init {
-
-        orientation = HORIZONTAL
-        LayoutInflater.from(context).inflate(R.layout.header_default_layout , this)
-        progressBar.progress = 50
+class RefreshHeaderLayout : RefreshHeader{
+    override fun onPulling(distance: Int) {
     }
 
-    override fun getHeaderView(): View {
-        setBackgroundColor(Color.GREEN)
-        return this
+    override fun onRefreshStateChanged(state: RefreshState) {
     }
+
+    override fun getHeaderView(refreshLayout: RefreshLayout): View {
+        val headerView = LayoutInflater.from(refreshLayout.context)
+                .inflate(R.layout.header_default_layout , refreshLayout , false)
+        headerView.setBackgroundColor(Color.GREEN)
+        return headerView
+    }
+
 
     override fun getHeaderHeight(): Int {
         return 300
     }
+
 
 }

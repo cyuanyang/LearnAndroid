@@ -19,7 +19,7 @@ class ListViewSimple : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_view_simple)
-        refreshLayout.refreshHeader = RefreshHeaderLayout(this)
+        refreshLayout.refreshHeader = RefreshHeaderLayout()
         val datas = ( 0 until 1000).map { Model("cyy--$it" , it) }
         listView.adapter = MyAdapter(datas)
 
@@ -50,7 +50,6 @@ class MyAdapter(datas:List<Model>) : BaseAdapter(){
         cv.indexView.text = datas[position].num.toString()
 
         return cv
-
     }
 
     override fun getItem(position: Int): Any {
