@@ -3,11 +3,8 @@ package com.cyy.refresh
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import com.cyy.refresh.refresh.RefreshLayout
-import com.cyy.refresh.refresh.RefreshListener
-import com.cyy.refresh.refresh.header.RefreshHeaderLayout
 import com.cyy.refresh.simple.ListViewSimple
+import com.cyy.refresh.simple.ScrollViewSimple
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -17,6 +14,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         listViewBtn.setOnClickListener { startActivity(Intent(this , ListViewSimple::class.java)) }
+
+        scrollViewBtn.setOnClickListener { startActivity(Intent(this , ScrollViewSimple::class.java)) }
 
 //        refreshLayout.refreshHeader = RefreshHeaderLayout(this)
 //

@@ -23,6 +23,7 @@ class RefreshHeaderLayout : RefreshHeader{
     }
 
     override fun onRefreshStateChanged(state: RefreshState) {
+
     }
 
     override fun getHeaderView(refreshLayout: RefreshLayout): View {

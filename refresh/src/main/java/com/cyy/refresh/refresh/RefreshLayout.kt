@@ -59,8 +59,8 @@ class RefreshLayout @JvmOverloads constructor(
 
     private val mScrollHelper:RefreshLayoutHelper = RefreshLayoutHelper(context)
 
-    private var mInitDownY:Int = 0 //按下时的位置
-    private var mInitLocation:Int = 0 //开始下拉时的手指位置
+    private var mInitDownY:Float = 0F //按下时的位置
+    private var mInitLocation:Float = 0F //开始下拉时的手指位置
     private var mIsBeginDrag = false  //开始拖动 会拦截事件
     private var state:RefreshState = RefreshState.IDLE
     internal var mHeaderHeight = 0 //头部的高度
@@ -84,9 +84,17 @@ class RefreshLayout @JvmOverloads constructor(
 
     private fun addHeaderLayout(refreshHeader:RefreshHeader){
         mHeaderHeight = refreshHeader.getHeaderHeight()
-        val lp = LayoutParams(LayoutParams.MATCH_PARENT , mHeaderHeight)
-        lp.topMargin = -mHeaderHeight
+        
         headerView = refreshHeader.getHeaderView(this)
+        if (headerView == null){
+            throw IllegalStateException("需要先设置一个header")
+        }
+        var lp:LayoutParams? = headerView!!.layoutParams as? LayoutParams
+        if (lp == null){
+            mHeaderHeight = refreshHeader.getHeaderHeight()
+            lp = LayoutParams(LayoutParams.MATCH_PARENT , mHeaderHeight)
+        }
+        lp.topMargin = -mHeaderHeight
         addView( headerView , lp)
     }
 
@@ -106,8 +114,8 @@ class RefreshLayout @JvmOverloads constructor(
 
         when (action) {
             MotionEvent.ACTION_DOWN -> {
-                mInitDownY = ev.y.toInt()
-                mInitLocation = ev.y.toInt()
+                mInitDownY = ev.y
+                mInitLocation = ev.y
                 mScrollHelper.abortAnimationFinished()
             }
             MotionEvent.ACTION_UP -> {
@@ -138,21 +146,22 @@ class RefreshLayout @JvmOverloads constructor(
 
         }
         // 走拦截事件
-        handle = super.dispatchTouchEvent(ev)
-        return handle
+        super.dispatchTouchEvent(ev)
+        return true
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         val action = ev.action
         if (canChildScrollUp()) {
-            log("还可以向上滑动")
+            log("还可以向上滑动" + ev)
             return false
         }
+
         log("到达顶部")
 
         when(action){
             MotionEvent.ACTION_DOWN -> {
-                mInitDownY = ev.y.toInt()
+                mInitDownY = ev.y
             }
             MotionEvent.ACTION_MOVE -> {
                 val y = ev.y
@@ -160,13 +169,13 @@ class RefreshLayout @JvmOverloads constructor(
                 log("yDiff = $yDiff .... $mTouchSlop")
                 if (yDiff>mTouchSlop && !mIsBeginDrag){
                     mIsBeginDrag = true
-                    mInitLocation = y.toInt()
+                    mInitLocation = y
                 }
             }
             MotionEvent.ACTION_UP ,
             MotionEvent.ACTION_CANCEL-> {
-                mInitDownY = 0
-                mInitLocation = 0
+                mInitDownY = 0f
+                mInitLocation = 0f
                 mIsBeginDrag = false
             }
         }
@@ -180,17 +189,17 @@ class RefreshLayout @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 val y = event.y
                 if (state == RefreshState.REFRESHING){
-                    val offset = y-mInitLocation
+                    val offset = mInitLocation - y
                     scrollState = ScrollState.DRAG
                     refreshScroll(offset)
                 }else{
                     val offset = (y-mInitLocation) * dragRate
                     offsetHeaderView(offset)
                 }
-                mInitLocation = y.toInt()
+                mInitLocation = y
             }
             MotionEvent.ACTION_UP -> {
-                mInitLocation = 0
+                mInitLocation = 0f
                 mIsBeginDrag = false
                 if (state == RefreshState.REFRESHING){
 
@@ -218,13 +227,22 @@ class RefreshLayout @JvmOverloads constructor(
      * scroll fling
      */
     private fun refreshScroll(offset:Float){
+
+        log("refreshScroll offset=$offset")
         if (offset == 0F) return
 
         var realOffset = offset
         if (getScrollEffectiveDistance()<-mHeaderHeight){
             realOffset *= dragRate
         }
-        scrollBy(0 , -realOffset.toInt())
+        log("refreshScroll realOffset=$realOffset")
+        if (realOffset>0){
+            scrollBy(0 , (realOffset+0.5).toInt())
+        }else{
+            scrollBy(0 , (realOffset-0.5).toInt())
+        }
+
+        log("refreshScroll getScrollEffectiveDistance=${getScrollEffectiveDistance()}")
     }
 
     private fun offsetHeaderView(offset:Float){
@@ -235,6 +253,7 @@ class RefreshLayout @JvmOverloads constructor(
         }
         scrollBy(0 , -offset.toInt())
         dispatchHeaderScrollEvent(dis)
+
     }
 
     //真实的scrollY

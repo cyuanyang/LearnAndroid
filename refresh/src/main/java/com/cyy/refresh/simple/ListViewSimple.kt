@@ -22,7 +22,6 @@ class ListViewSimple : AppCompatActivity() {
         refreshLayout.refreshHeader = RefreshHeaderLayout()
         val datas = ( 0 until 1000).map { Model("cyy--$it" , it) }
         listView.adapter = MyAdapter(datas)
-
         refreshLayout.mRefreshListener = object : RefreshListener {
             override fun onRefresh(refreshLayout: RefreshLayout) {
 
