@@ -9,7 +9,6 @@ import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.AbsListView
 import android.widget.FrameLayout
-import android.widget.ListView
 
 /**
  * Created by cyy on 17/9/8.
@@ -84,7 +83,8 @@ class RefreshLayout @JvmOverloads constructor(
     }
 
     private fun addHeaderLayout(refreshHeader:RefreshHeader){
-        mHeaderHeight = refreshHeader.getHeaderHeight()
+
+        mHeaderHeight = dp2px(refreshHeader.getHeaderHeight()).toInt()
 
         headerView = refreshHeader.getHeaderView(this)
         if (headerView == null){
@@ -92,7 +92,6 @@ class RefreshLayout @JvmOverloads constructor(
         }
         var lp:LayoutParams? = null
         if (lp == null){
-            mHeaderHeight = refreshHeader.getHeaderHeight()
             lp = LayoutParams(LayoutParams.MATCH_PARENT , mHeaderHeight)
         }
         lp.topMargin = -mHeaderHeight
@@ -199,7 +198,7 @@ class RefreshLayout @JvmOverloads constructor(
                     refreshScroll(offset)
                     round = offset - offset.toInt()
                 }else{
-                    val offset = (y-mLastMotionY) * dragRate
+                    val offset = (mLastMotionY-y) * dragRate
                     offsetHeaderView(offset)
                     round = offset - offset.toInt()
                 }
@@ -236,22 +235,13 @@ class RefreshLayout @JvmOverloads constructor(
      */
     private fun refreshScroll(offset:Float){
 
-        log("refreshScroll offset=$offset")
         if (offset == 0F) return
 
         var realOffset = offset
         if (getScrollEffectiveDistance()<-mHeaderHeight){
             realOffset *= dragRate
         }
-        log("refreshScroll realOffset=$realOffset")
         scrollBy(0 , (realOffset).toInt())
-//        if (realOffset>0){
-//            scrollBy(0 , (realOffset+0.5).toInt())
-//        }else{
-//            scrollBy(0 , (realOffset-0.5).toInt())
-//        }
-
-        log("refreshScroll getScrollEffectiveDistance=${getScrollEffectiveDistance()}")
     }
 
     private fun offsetHeaderView(offset:Float){
@@ -260,7 +250,7 @@ class RefreshLayout @JvmOverloads constructor(
         if (dis>=0){
             mIsBeginDrag = false
         }
-        scrollBy(0 , -offset.toInt())
+        scrollBy(0 , offset.toInt())
         dispatchHeaderScrollEvent(dis)
 
     }
@@ -330,7 +320,7 @@ class RefreshLayout @JvmOverloads constructor(
     private fun dispatchHeaderScrollEvent(dis:Int){
         log("dispatchHeaderScrollEvent>dis = $dis")
         mScrollCallback?.scroll(dis)
-        refreshHeader?.onPulling(dis)
+        refreshHeader?.onPulling(dis , dis.toFloat()/mHeaderHeight)
     }
 
     //结束滑动
@@ -343,9 +333,22 @@ class RefreshLayout @JvmOverloads constructor(
 }
 
 interface RefreshHeader{
+
+    /**
+     * 返回headerView 必须返回一个View
+     */
     fun getHeaderView(refreshLayout:RefreshLayout):View  //返回header view
+
+    /**
+     * 返回下拉刷新的高度，这个高度将决定确定是否完成刷新
+     */
     fun getHeaderHeight():Int //header height
-    fun onPulling(distance:Int) //下拉的过程
+    /**
+     * 下拉的过程
+     * @param distance 下拉的距离
+     * @param progress 下拉完成的进度百分比 大于1的时候已经完成下拉
+     */
+    fun onPulling(distance:Int , progress:Float)
     fun onRefreshStateChanged(state:RefreshState)
 }
 
