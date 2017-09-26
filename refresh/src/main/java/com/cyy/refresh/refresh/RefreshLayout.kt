@@ -9,6 +9,7 @@ import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.AbsListView
 import android.widget.FrameLayout
+import android.widget.ListView
 
 /**
  * Created by cyy on 17/9/8.
@@ -59,8 +60,7 @@ class RefreshLayout @JvmOverloads constructor(
 
     private val mScrollHelper:RefreshLayoutHelper = RefreshLayoutHelper(context)
 
-    private var mInitDownY:Float = 0F //按下时的位置
-    private var mInitLocation:Float = 0F //开始下拉时的手指位置
+    private var mLastMotionY:Float = 0F //上一次的位置
     private var mIsBeginDrag = false  //开始拖动 会拦截事件
     private var state:RefreshState = RefreshState.IDLE
     internal var mHeaderHeight = 0 //头部的高度
@@ -80,16 +80,17 @@ class RefreshLayout @JvmOverloads constructor(
         }
 
         mContentView = getChildAt(0)
+//        (mContentView as? ListView)?.overScrollMode = View.OVER_SCROLL_NEVER
     }
 
     private fun addHeaderLayout(refreshHeader:RefreshHeader){
         mHeaderHeight = refreshHeader.getHeaderHeight()
-        
+
         headerView = refreshHeader.getHeaderView(this)
         if (headerView == null){
             throw IllegalStateException("需要先设置一个header")
         }
-        var lp:LayoutParams? = headerView!!.layoutParams as? LayoutParams
+        var lp:LayoutParams? = null
         if (lp == null){
             mHeaderHeight = refreshHeader.getHeaderHeight()
             lp = LayoutParams(LayoutParams.MATCH_PARENT , mHeaderHeight)
@@ -114,10 +115,10 @@ class RefreshLayout @JvmOverloads constructor(
 
         when (action) {
             MotionEvent.ACTION_DOWN -> {
-                mInitDownY = ev.y
-                mInitLocation = ev.y
+                mLastMotionY = ev.y
                 mScrollHelper.abortAnimationFinished()
             }
+            MotionEvent.ACTION_MOVE -> {}
             MotionEvent.ACTION_UP -> {
                 if (state == RefreshState.REFRESHING){
                     if (getScrollEffectiveDistance() < -mHeaderHeight){
@@ -156,26 +157,26 @@ class RefreshLayout @JvmOverloads constructor(
             log("还可以向上滑动" + ev)
             return false
         }
+        if (state == RefreshState.REFRESHING
+                && getScrollEffectiveDistance()<0){
+            return false
+        }
 
         log("到达顶部")
 
         when(action){
-            MotionEvent.ACTION_DOWN -> {
-                mInitDownY = ev.y
-            }
             MotionEvent.ACTION_MOVE -> {
                 val y = ev.y
-                val yDiff = y - mInitDownY
+                val yDiff = y - mLastMotionY
                 log("yDiff = $yDiff .... $mTouchSlop")
                 if (yDiff>mTouchSlop && !mIsBeginDrag){
                     mIsBeginDrag = true
-                    mInitLocation = y
+                    mLastMotionY = y
                 }
             }
             MotionEvent.ACTION_UP ,
             MotionEvent.ACTION_CANCEL-> {
-                mInitDownY = 0f
-                mInitLocation = 0f
+                mLastMotionY = 0f
                 mIsBeginDrag = false
             }
         }
@@ -185,21 +186,28 @@ class RefreshLayout @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val action = event.action
         when(action){
-            MotionEvent.ACTION_DOWN -> { }
+            MotionEvent.ACTION_DOWN -> {
+                mLastMotionY  = event.y
+            }
             MotionEvent.ACTION_MOVE -> {
                 val y = event.y
+                //不要丢失小数部分
+                var round :Float
                 if (state == RefreshState.REFRESHING){
-                    val offset = mInitLocation - y
+                    val offset = mLastMotionY - y
                     scrollState = ScrollState.DRAG
                     refreshScroll(offset)
+                    round = offset - offset.toInt()
                 }else{
-                    val offset = (y-mInitLocation) * dragRate
+                    val offset = (y-mLastMotionY) * dragRate
                     offsetHeaderView(offset)
+                    round = offset - offset.toInt()
                 }
-                mInitLocation = y
+                mLastMotionY = y + round
+                ViewCompat.postInvalidateOnAnimation(this)
             }
             MotionEvent.ACTION_UP -> {
-                mInitLocation = 0f
+                mLastMotionY = 0f
                 mIsBeginDrag = false
                 if (state == RefreshState.REFRESHING){
 
@@ -236,11 +244,12 @@ class RefreshLayout @JvmOverloads constructor(
             realOffset *= dragRate
         }
         log("refreshScroll realOffset=$realOffset")
-        if (realOffset>0){
-            scrollBy(0 , (realOffset+0.5).toInt())
-        }else{
-            scrollBy(0 , (realOffset-0.5).toInt())
-        }
+        scrollBy(0 , (realOffset).toInt())
+//        if (realOffset>0){
+//            scrollBy(0 , (realOffset+0.5).toInt())
+//        }else{
+//            scrollBy(0 , (realOffset-0.5).toInt())
+//        }
 
         log("refreshScroll getScrollEffectiveDistance=${getScrollEffectiveDistance()}")
     }

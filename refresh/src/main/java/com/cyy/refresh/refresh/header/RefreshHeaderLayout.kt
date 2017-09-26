@@ -33,10 +33,8 @@ class RefreshHeaderLayout : RefreshHeader{
         return headerView
     }
 
-
     override fun getHeaderHeight(): Int {
         return 300
     }
-
 
 }
