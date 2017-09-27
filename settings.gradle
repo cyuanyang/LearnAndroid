@@ -1,1 +1,1 @@
-include ':app', ':okhttpsimple', ':learnglide', ':refresh', ':nestscroll'
+include ':app', ':okhttpsimple', ':learnglide', ':refresh', ':nestscroll', ':compass'
