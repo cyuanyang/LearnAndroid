@@ -1,7 +1,5 @@
 #### 学习动画
 
 
-
-
-1.[SVG动画](./svganimate)
+1.[SVG动画](./notes/svganimate.md)
 
