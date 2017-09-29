@@ -1,7 +1,6 @@
 package com.cyy.animatesimple.svganimate;
 
 import android.graphics.drawable.AnimatedVectorDrawable;
-import android.graphics.drawable.VectorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -36,8 +35,6 @@ public class SVGAnimations extends AppCompatActivity {
             api21Layout.setVisibility(View.GONE);
         }
         simple1();
-
-
     }
 
     private void simple1(){

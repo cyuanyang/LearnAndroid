@@ -15,5 +15,6 @@ class MainActivity : AppCompatActivity() {
         svgAnimBtn.setOnClickListener {
             startActivity(Intent(this@MainActivity , SVGAnimations::class.java))
         }
+
     }
 }

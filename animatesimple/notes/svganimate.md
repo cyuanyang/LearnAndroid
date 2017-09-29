@@ -33,8 +33,9 @@ Z = closepath()：关闭路径
 
 ##### SVG图片动画
 
-
+例子在源码中
 
 
 ##### 参考
-[](https://medium.com/@shemag8/animated-vector-drawable-e4d7743d372c)
+
+[https://medium.com/@shemag8/animated-vector-drawable-e4d7743d372c](https://medium.com/@shemag8/animated-vector-drawable-e4d7743d372c)
