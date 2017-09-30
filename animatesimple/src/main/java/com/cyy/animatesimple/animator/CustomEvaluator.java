@@ -67,8 +67,8 @@ public class CustomEvaluator extends Activity {
     }
 
 
+    //三次杯赛尔曲线  pointF1 控制点一   pointF2控制点二
     public class BezierEvaluator implements TypeEvaluator<XYHolder> {
-
 
         private PointF pointF1;
         private PointF pointF2;
