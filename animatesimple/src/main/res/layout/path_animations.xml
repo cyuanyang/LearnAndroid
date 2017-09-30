@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
     <ScrollView android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <RadioGroup android:orientation="horizontal"
+        <RadioGroup android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/path_animation_type"
@@ -37,7 +37,7 @@
         </RadioGroup>
     </ScrollView>
 
-    <view class="com.cyy.animatesimple.PathAnimations$CanvasView"
+    <view class="com.cyy.animatesimple.pathanimate.PathAnimations$CanvasView"
         android:id="@+id/canvas"
         android:layout_width="match_parent"
         android:layout_height="0px"

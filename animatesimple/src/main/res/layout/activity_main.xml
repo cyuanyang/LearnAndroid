@@ -20,6 +20,13 @@
                 android:layout_height="wrap_content"
                 android:text="svg animate"/>
 
+
+            <Button
+                android:id="@+id/pathAnimBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="path animate"/>
+
         </LinearLayout>
     </ScrollView>
 

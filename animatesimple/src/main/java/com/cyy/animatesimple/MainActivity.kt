@@ -4,6 +4,7 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.cyy.animatesimple.svganimate.SVGAnimations
+import com.cyy.animatesimple.pathanimate.PathAnimations
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -14,6 +15,10 @@ class MainActivity : AppCompatActivity() {
 
         svgAnimBtn.setOnClickListener {
             startActivity(Intent(this@MainActivity , SVGAnimations::class.java))
+        }
+
+        pathAnimBtn.setOnClickListener {
+            startActivity(Intent(this , PathAnimations::class.java))
         }
 
     }

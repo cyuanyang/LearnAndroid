@@ -14,8 +14,8 @@ import android.widget.ImageView;
 import com.cyy.animatesimple.R;
 
 /**
- * Created by study on 17/9/28.
- *
+ * Created by cyy on 17/9/28.
+ * svg动画的例子
  */
 
 public class SVGAnimations extends AppCompatActivity {

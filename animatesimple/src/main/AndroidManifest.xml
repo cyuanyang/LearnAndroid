@@ -17,6 +17,7 @@
         </activity>
 
         <activity android:name=".svganimate.SVGAnimations"/>
+        <activity android:name=".pathanimate.PathAnimations"/>
     </application>
 
 </manifest>
