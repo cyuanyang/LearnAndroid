@@ -15,9 +15,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".svganimate.SVGAnimations"/>
-        <activity android:name=".pathanimate.PathAnimations"/>
+        <activity android:name=".svganimate.SVGAnimations" />
+        <activity android:name=".animator.PathAnimations" />
+        <activity android:name=".animator.CustomEvaluator" />
     </application>
 
 </manifest>

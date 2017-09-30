@@ -1,5 +1,5 @@
 
-package com.cyy.animatesimple.pathanimate;
+package com.cyy.animatesimple.animator;
 
 import android.animation.ObjectAnimator;
 import android.animation.TypeConverter;
@@ -7,28 +7,27 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.PointF;
-import android.graphics.RectF;
 import android.os.Bundle;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.Property;
 import android.view.View;
-import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.RadioGroup;
 
 import com.cyy.animatesimple.R;
 
-/** This application demonstrates the use of Path animation. */
 public class PathAnimations extends Activity implements
         RadioGroup.OnCheckedChangeListener, View.OnLayoutChangeListener {
+
     final static Path sTraversalPath = new Path();
     final static float TRAVERSE_PATH_SIZE = 7.0f;
+
     final static Property<PathAnimations, Point> POINT_PROPERTY
             = new Property<PathAnimations, Point>(Point.class, "point") {
         @Override
@@ -36,31 +35,26 @@ public class PathAnimations extends Activity implements
             View v = object.findViewById(R.id.moved_item);
             return new Point(Math.round(v.getX()), Math.round(v.getY()));
         }
+
         @Override
         public void set(PathAnimations object, Point value) {
             object.setCoordinates(value.x, value.y);
         }
     };
+
     static {
-        float inverse_sqrt8 = (float) Math.sqrt(0.125);
-        RectF bounds = new RectF(1, 1, 3, 3);
-        sTraversalPath.addArc(bounds, 45, 180);
-        sTraversalPath.addArc(bounds, 225, 180);
-        bounds.set(1.5f + inverse_sqrt8, 1.5f + inverse_sqrt8, 2.5f + inverse_sqrt8,
-                2.5f + inverse_sqrt8);
-        sTraversalPath.addArc(bounds, 45, 180);
-        sTraversalPath.addArc(bounds, 225, 180);
-        bounds.set(4, 1, 6, 3);
-        sTraversalPath.addArc(bounds, 135, -180);
-        sTraversalPath.addArc(bounds, -45, -180);
-        bounds.set(4.5f - inverse_sqrt8, 1.5f + inverse_sqrt8, 5.5f - inverse_sqrt8, 2.5f + inverse_sqrt8);
-        sTraversalPath.addArc(bounds, 135, -180);
-        sTraversalPath.addArc(bounds, -45, -180);
-        sTraversalPath.addCircle(3.5f, 3.5f, 0.5f, Path.Direction.CCW);
-        sTraversalPath.addArc(new RectF(1, 2, 6, 6), 0, 180);
+
+        sTraversalPath.moveTo(100,100);
+        sTraversalPath.lineTo(500,100);
+        sTraversalPath.lineTo(500 ,600);
+        sTraversalPath.lineTo(100,600);
+        sTraversalPath.close();
     }
+
     private CanvasView mCanvasView;
+
     private ObjectAnimator mAnimator;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,21 +64,26 @@ public class PathAnimations extends Activity implements
         mCanvasView.addOnLayoutChangeListener(this);
         ((RadioGroup) findViewById(R.id.path_animation_type)).setOnCheckedChangeListener(this);
     }
+
     public void setCoordinates(int x, int y) {
         changeCoordinates((float) x, (float) y);
     }
+
     public void changeCoordinates(float x, float y) {
         View v = findViewById(R.id.moved_item);
         v.setX(x);
         v.setY(y);
     }
+
     public void setPoint(PointF point) {
         changeCoordinates(point.x, point.y);
     }
+
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
         startAnimator(checkedId);
     }
+
     @Override
     public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
                                int oldTop, int oldRight, int oldBottom) {
@@ -93,16 +92,19 @@ public class PathAnimations extends Activity implements
             startAnimator(checkedId);
         }
     }
+
     private void startAnimator(int checkedId) {
         if (mAnimator != null) {
             mAnimator.cancel();
             mAnimator = null;
         }
+
         View view = findViewById(R.id.moved_item);
         Path path = mCanvasView.getPath();
         if (path.isEmpty()) {
             return;
         }
+
         switch (checkedId) {
             case R.id.named_components:
                 // Use the named "x" and "y" properties for individual (x, y)
@@ -146,58 +148,66 @@ public class PathAnimations extends Activity implements
                         new PointFToPointConverter(), path);
                 break;
         }
+
         mAnimator.setDuration(10000);
-        mAnimator.setRepeatMode(Animation.RESTART);
-        mAnimator.setRepeatCount(ValueAnimator.INFINITE);
+//        mAnimator.setRepeatMode(Animation.RESTART);
+//        mAnimator.setRepeatCount(ValueAnimator.INFINITE);
         mAnimator.setInterpolator(new LinearInterpolator());
         mAnimator.start();
+        mAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                Object o = animation.getAnimatedValue();
+                Log.i("onAnimationUpdate" , "o="+o);
+
+            }
+        });
     }
+
     public static class CanvasView extends FrameLayout {
-        Path mPath = new Path();
+
         Paint mPathPaint = new Paint();
+
         public CanvasView(Context context) {
             super(context);
             init();
         }
+
         public CanvasView(Context context, AttributeSet attrs) {
             super(context, attrs);
             init();
         }
+
         public CanvasView(Context context, AttributeSet attrs, int defStyle) {
             super(context, attrs, defStyle);
             init();
         }
+
         private void init() {
             setWillNotDraw(false);
             mPathPaint.setColor(0xFFFF0000);
             mPathPaint.setStrokeWidth(2.0f);
             mPathPaint.setStyle(Paint.Style.STROKE);
         }
-        @Override
-        protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-            super.onLayout(changed, left, top, right, bottom);
-            if (changed) {
-                Matrix scale = new Matrix();
-                float scaleWidth = (right-left)/TRAVERSE_PATH_SIZE;
-                float scaleHeight= (bottom-top)/TRAVERSE_PATH_SIZE;
-                scale.setScale(scaleWidth, scaleHeight);
-                sTraversalPath.transform(scale, mPath);
-            }
-        }
+
         public Path getPath() {
-            return mPath;
+            return sTraversalPath;
         }
+
         @Override
         public void draw(Canvas canvas) {
-            canvas.drawPath(mPath, mPathPaint);
+            canvas.drawPath(sTraversalPath, mPathPaint);
             super.draw(canvas);
         }
     }
+
     private static class PointFToPointConverter extends TypeConverter<PointF, Point> {
         Point mPoint = new Point();
+
         public PointFToPointConverter() {
             super(PointF.class, Point.class);
         }
+
         @Override
         public Point convert(PointF value) {
             mPoint.set(Math.round(value.x), Math.round(value.y));

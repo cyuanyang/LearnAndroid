@@ -27,6 +27,11 @@
                 android:layout_height="wrap_content"
                 android:text="path animate"/>
 
+            <Button
+                android:id="@+id/customEvaluator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="custom Evaluator"/>
         </LinearLayout>
     </ScrollView>
 

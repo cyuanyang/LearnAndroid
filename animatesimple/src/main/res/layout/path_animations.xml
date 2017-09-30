@@ -37,7 +37,7 @@
         </RadioGroup>
     </ScrollView>
 
-    <view class="com.cyy.animatesimple.pathanimate.PathAnimations$CanvasView"
+    <view class="com.cyy.animatesimple.animator.PathAnimations$CanvasView"
         android:id="@+id/canvas"
         android:layout_width="match_parent"
         android:layout_height="0px"
@@ -45,6 +45,7 @@
         <ImageView android:id="@+id/moved_item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="#eee"
             android:src="@drawable/frog"/>
     </view>
 </LinearLayout>
