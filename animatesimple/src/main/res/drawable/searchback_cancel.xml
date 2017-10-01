@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:name="line"
+        android:pathData="M5.705,5.705 L18.295,18.295"
+        android:strokeWidth="2"
+        android:strokeColor="#00ff00"
+        android:trimPathStart="0"/>
+
+    <path
+        android:name="circle1"
+        android:pathData="M5.705,5.705 A 4 4 0 1 1 12,12 L5.705,18.295"
+        android:strokeWidth="2"
+        android:strokeColor="#00ff00"
+        android:trimPathStart="0.6"
+        android:trimPathEnd="1" />
+
+    <path
+        android:name="circle2"
+        android:pathData="M18.295,5.705 L12,12 A 4 4 0 1 1 5.705,5.705"
+        android:strokeWidth="2"
+        android:strokeColor="#00ff00"
+        android:trimPathStart="1"
+        android:trimPathEnd="10.4" />
+</vector>

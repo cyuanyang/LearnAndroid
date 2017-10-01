@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:ordering="together">
+    <objectAnimator
+        android:propertyName="trimPathStart"
+        android:valueFrom="0.6"
+        android:valueTo="0"
+        android:duration="450" />
+
+    <objectAnimator
+        android:propertyName="trimPathEnd"
+        android:valueFrom="1"
+        android:valueTo="0.6"
+        android:duration="600" />
+</set>

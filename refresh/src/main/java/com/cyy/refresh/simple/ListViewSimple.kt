@@ -9,6 +9,7 @@ import android.widget.BaseAdapter
 import com.cyy.refresh.R
 import com.cyy.refresh.refresh.RefreshLayout
 import com.cyy.refresh.refresh.RefreshListener
+import com.cyy.refresh.refresh.header.ProgressHeaderLayout
 import com.cyy.refresh.refresh.header.RefreshHeaderLayout
 import kotlinx.android.synthetic.main.activity_list_view_simple.*
 import kotlinx.android.synthetic.main.item_list_view.view.*
@@ -19,10 +20,9 @@ class ListViewSimple : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_view_simple)
-        refreshLayout.refreshHeader = RefreshHeaderLayout()
+        refreshLayout.refreshHeader = ProgressHeaderLayout()
         val datas = ( 0 until 1000).map { Model("cyy--$it" , it) }
         listView.adapter = MyAdapter(datas)
-
         refreshLayout.mRefreshListener = object : RefreshListener {
             override fun onRefresh(refreshLayout: RefreshLayout) {
 

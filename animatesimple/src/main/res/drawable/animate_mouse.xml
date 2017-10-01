@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_pc_mouse">
+
+    <target
+        android:animation="@animator/animator_mouse"
+        android:name="path1"/>
+    <target
+        android:animation="@animator/animator_mouse"
+        android:name="path2"/>
+    <target
+        android:animation="@animator/animator_mouse"
+        android:name="path3"/>
+    <target
+        android:animation="@animator/animator_mouse"
+        android:name="path4"/>
+
+</animated-vector>

@@ -19,14 +19,21 @@ class MyListView@JvmOverloads constructor(
 
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        log("MyListView dispatchTouchEvent－－－－ $ev")
         return super.dispatchTouchEvent(ev)
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        log("MyListView onInterceptTouchEvent－－－－ $ev")
         return super.onInterceptTouchEvent(ev)
     }
 
+    override fun setOverScrollMode(mode: Int) {
+        super.setOverScrollMode(mode)
+    }
+
     override fun onTouchEvent(ev: MotionEvent?): Boolean {
+        log("MyListView onTouchEvent－－－－ $ev")
         return super.onTouchEvent(ev)
     }
 }

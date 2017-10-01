@@ -59,8 +59,7 @@ class RefreshLayout @JvmOverloads constructor(
 
     private val mScrollHelper:RefreshLayoutHelper = RefreshLayoutHelper(context)
 
-    private var mInitDownY:Int = 0 //按下时的位置
-    private var mInitLocation:Int = 0 //开始下拉时的手指位置
+    private var mLastMotionY:Float = 0F //上一次的位置
     private var mIsBeginDrag = false  //开始拖动 会拦截事件
     private var state:RefreshState = RefreshState.IDLE
     internal var mHeaderHeight = 0 //头部的高度
@@ -80,13 +79,22 @@ class RefreshLayout @JvmOverloads constructor(
         }
 
         mContentView = getChildAt(0)
+//        (mContentView as? ListView)?.overScrollMode = View.OVER_SCROLL_NEVER
     }
 
     private fun addHeaderLayout(refreshHeader:RefreshHeader){
-        mHeaderHeight = refreshHeader.getHeaderHeight()
-        val lp = LayoutParams(LayoutParams.MATCH_PARENT , mHeaderHeight)
-        lp.topMargin = -mHeaderHeight
+
+        mHeaderHeight = dp2px(refreshHeader.getHeaderHeight()).toInt()
+
         headerView = refreshHeader.getHeaderView(this)
+        if (headerView == null){
+            throw IllegalStateException("需要先设置一个header")
+        }
+        var lp:LayoutParams? = null
+        if (lp == null){
+            lp = LayoutParams(LayoutParams.MATCH_PARENT , mHeaderHeight)
+        }
+        lp.topMargin = -mHeaderHeight
         addView( headerView , lp)
     }
 
@@ -106,10 +114,10 @@ class RefreshLayout @JvmOverloads constructor(
 
         when (action) {
             MotionEvent.ACTION_DOWN -> {
-                mInitDownY = ev.y.toInt()
-                mInitLocation = ev.y.toInt()
+                mLastMotionY = ev.y
                 mScrollHelper.abortAnimationFinished()
             }
+            MotionEvent.ACTION_MOVE -> {}
             MotionEvent.ACTION_UP -> {
                 if (state == RefreshState.REFRESHING){
                     if (getScrollEffectiveDistance() < -mHeaderHeight){
@@ -138,35 +146,36 @@ class RefreshLayout @JvmOverloads constructor(
 
         }
         // 走拦截事件
-        handle = super.dispatchTouchEvent(ev)
-        return handle
+        super.dispatchTouchEvent(ev)
+        return true
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         val action = ev.action
         if (canChildScrollUp()) {
-            log("还可以向上滑动")
+            log("还可以向上滑动" + ev)
             return false
         }
+        if (state == RefreshState.REFRESHING
+                && getScrollEffectiveDistance()<0){
+            return false
+        }
+
         log("到达顶部")
 
         when(action){
-            MotionEvent.ACTION_DOWN -> {
-                mInitDownY = ev.y.toInt()
-            }
             MotionEvent.ACTION_MOVE -> {
                 val y = ev.y
-                val yDiff = y - mInitDownY
+                val yDiff = y - mLastMotionY
                 log("yDiff = $yDiff .... $mTouchSlop")
                 if (yDiff>mTouchSlop && !mIsBeginDrag){
                     mIsBeginDrag = true
-                    mInitLocation = y.toInt()
+                    mLastMotionY = y
                 }
             }
             MotionEvent.ACTION_UP ,
             MotionEvent.ACTION_CANCEL-> {
-                mInitDownY = 0
-                mInitLocation = 0
+                mLastMotionY = 0f
                 mIsBeginDrag = false
             }
         }
@@ -176,21 +185,28 @@ class RefreshLayout @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val action = event.action
         when(action){
-            MotionEvent.ACTION_DOWN -> { }
+            MotionEvent.ACTION_DOWN -> {
+                mLastMotionY  = event.y
+            }
             MotionEvent.ACTION_MOVE -> {
                 val y = event.y
+                //不要丢失小数部分
+                var round :Float
                 if (state == RefreshState.REFRESHING){
-                    val offset = y-mInitLocation
+                    val offset = mLastMotionY - y
                     scrollState = ScrollState.DRAG
                     refreshScroll(offset)
+                    round = offset - offset.toInt()
                 }else{
-                    val offset = (y-mInitLocation) * dragRate
+                    val offset = (mLastMotionY-y) * dragRate
                     offsetHeaderView(offset)
+                    round = offset - offset.toInt()
                 }
-                mInitLocation = y.toInt()
+                mLastMotionY = y + round
+                ViewCompat.postInvalidateOnAnimation(this)
             }
             MotionEvent.ACTION_UP -> {
-                mInitLocation = 0
+                mLastMotionY = 0f
                 mIsBeginDrag = false
                 if (state == RefreshState.REFRESHING){
 
@@ -218,13 +234,14 @@ class RefreshLayout @JvmOverloads constructor(
      * scroll fling
      */
     private fun refreshScroll(offset:Float){
+
         if (offset == 0F) return
 
         var realOffset = offset
         if (getScrollEffectiveDistance()<-mHeaderHeight){
             realOffset *= dragRate
         }
-        scrollBy(0 , -realOffset.toInt())
+        scrollBy(0 , (realOffset).toInt())
     }
 
     private fun offsetHeaderView(offset:Float){
@@ -233,8 +250,9 @@ class RefreshLayout @JvmOverloads constructor(
         if (dis>=0){
             mIsBeginDrag = false
         }
-        scrollBy(0 , -offset.toInt())
+        scrollBy(0 , offset.toInt())
         dispatchHeaderScrollEvent(dis)
+
     }
 
     //真实的scrollY
@@ -302,7 +320,7 @@ class RefreshLayout @JvmOverloads constructor(
     private fun dispatchHeaderScrollEvent(dis:Int){
         log("dispatchHeaderScrollEvent>dis = $dis")
         mScrollCallback?.scroll(dis)
-        refreshHeader?.onPulling(dis)
+        refreshHeader?.onPulling(dis , dis.toFloat()/mHeaderHeight)
     }
 
     //结束滑动
@@ -315,9 +333,22 @@ class RefreshLayout @JvmOverloads constructor(
 }
 
 interface RefreshHeader{
+
+    /**
+     * 返回headerView 必须返回一个View
+     */
     fun getHeaderView(refreshLayout:RefreshLayout):View  //返回header view
+
+    /**
+     * 返回下拉刷新的高度，这个高度将决定确定是否完成刷新
+     */
     fun getHeaderHeight():Int //header height
-    fun onPulling(distance:Int) //下拉的过程
+    /**
+     * 下拉的过程
+     * @param distance 下拉的距离
+     * @param progress 下拉完成的进度百分比 大于1的时候已经完成下拉
+     */
+    fun onPulling(distance:Int , progress:Float)
     fun onRefreshStateChanged(state:RefreshState)
 }
 
