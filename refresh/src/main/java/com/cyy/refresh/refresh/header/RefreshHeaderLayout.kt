@@ -8,12 +8,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.TextView
 import com.cyy.refresh.R
-import com.cyy.refresh.refresh.RefreshHeader
-import com.cyy.refresh.refresh.RefreshLayout
-import com.cyy.refresh.refresh.RefreshState
-import com.cyy.refresh.refresh.log
 import kotlinx.android.synthetic.main.header_default_layout.view.*
+import android.R.attr.centerY
+import com.cyy.refresh.refresh.*
+
 
 /**
  * Created by study on 17/9/8.
@@ -48,21 +48,43 @@ class RefreshHeaderLayout : RefreshHeader{
 class ProgressDrawable : Drawable(){
 
     private val paint:Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val textPaint:Paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private var progressWidth = 10f
     private var rectF = RectF()
+
 
     init {
         paint.color = Color.BLACK
         paint.strokeCap = Paint.Cap.ROUND
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = progressWidth
+
+        textPaint.color = Color.BLACK
+        textPaint.textSize = 50f
+        textPaint.style = Paint.Style.FILL
+        textPaint.textAlign = Paint.Align.CENTER
     }
 
     override fun draw(canvas: Canvas) {
         log("level == $level")
         val sweepAngle = 360f * level / 10000
-        canvas.drawArc(rectF , -90f , -sweepAngle ,false , paint)
+        canvas.drawArc(rectF , -90f , sweepAngle ,false , paint)
+
+        var p = (100f * level / 10000).toInt()
+        if (p>100){
+            p = 100
+        }
+        val fontMetrics = textPaint.fontMetrics
+        val top = fontMetrics.top//为基线到字体上边框的距离,即上图中的top
+        val bottom = fontMetrics.bottom//为基线到字体下边框的距离,即上图中的bottom
+
+        val baseLineY = (rectF.centerY() - top / 2 - bottom / 2) //基线中间点的y轴计算公式
+        canvas.drawText(p.toString()+"%",rectF.centerX(),baseLineY,textPaint)
+    }
+
+    fun setTextSize(textSize:Float){
+        textPaint.textSize = textSize
     }
 
     override fun setAlpha(alpha: Int) {
@@ -95,25 +117,41 @@ class ProgressDrawable : Drawable(){
 class ProgressHeaderLayout : RefreshHeader{
 
     var progressView:View? = null
+    var refreshTextView:TextView? = null
     val drawable = ProgressDrawable()
 
     override fun onPulling(distance: Int , progress:Float) {
         var p = progress
+        log("p====$p" )
         if (p>=1){
+            refreshTextView!!.text = "松开刷新"
             p = 1.0f
+        }else{
+            refreshTextView!!.text = "下拉刷新"
         }
         drawable.level = (10000 * p).toInt()
     }
 
     override fun onRefreshStateChanged(state: RefreshState) {
-
+        when(state){
+            RefreshState.REFRESHING->{
+                refreshTextView!!.text = "正在刷新..."
+            }
+            RefreshState.IDLE->{
+                refreshTextView!!.text = "刷新完成"
+            }
+        }
     }
 
     override fun getHeaderView(refreshLayout: RefreshLayout): View {
         val headerView = LayoutInflater.from(refreshLayout.context)
                 .inflate(R.layout.header_default_layout , refreshLayout , false)
         progressView = headerView.findViewById(R.id.progress)
+
+        drawable.setTextSize(refreshLayout.dp2px(10))
         progressView?.setBackgroundDrawable(drawable)
+
+        refreshTextView = headerView.findViewById(R.id.refreshTextView)
         return headerView
     }
 

@@ -100,7 +100,7 @@ class RefreshLayout @JvmOverloads constructor(
 
     override fun requestDisallowInterceptTouchEvent(b: Boolean) {
         if (android.os.Build.VERSION.SDK_INT < 21 && mContentView is AbsListView
-                || mContentView != null && !ViewCompat.isNestedScrollingEnabled(mContentView)) {
+                || mContentView != null && !ViewCompat.isNestedScrollingEnabled(mContentView!!)) {
             // Nope.
         } else {
             super.requestDisallowInterceptTouchEvent(b)
@@ -251,8 +251,7 @@ class RefreshLayout @JvmOverloads constructor(
             mIsBeginDrag = false
         }
         scrollBy(0 , offset.toInt())
-        dispatchHeaderScrollEvent(dis)
-
+        dispatchHeaderScrollEvent(-dis)
     }
 
     //真实的scrollY
@@ -288,6 +287,7 @@ class RefreshLayout @JvmOverloads constructor(
                 state = RefreshState.IDLE
                 smoothScrollTo(0)
             }
+            dispatchRefreshStateChanged(state)
         }
     }
 
@@ -323,9 +323,14 @@ class RefreshLayout @JvmOverloads constructor(
         refreshHeader?.onPulling(dis , dis.toFloat()/mHeaderHeight)
     }
 
+    private fun dispatchRefreshStateChanged(state:RefreshState){
+        refreshHeader?.onRefreshStateChanged(state)
+    }
+
     //结束滑动
     fun endRefresh(){
         state = RefreshState.IDLE
+        dispatchRefreshStateChanged(state)
         log("结束刷新")
         smoothScrollTo(0)
 
