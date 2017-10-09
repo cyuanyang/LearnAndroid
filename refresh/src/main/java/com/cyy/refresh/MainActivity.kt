@@ -3,9 +3,11 @@ package com.cyy.refresh
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import kotlinx.android.synthetic.main.activity_main.*
+
 import com.cyy.refresh.simple.ListViewSimple
 import com.cyy.refresh.simple.ScrollViewSimple
-import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
 
