@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.cyy.loading.MainActivity"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
+
+
+    <com.cyy.loading.loading.LoadingProgressLayout
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="16dp"
+        android:background="#00ff00">
+
+        <view
+            class="de.hdodenhof.circleimageview.CircleImageView"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@mipmap/header"
+            android:visibility="gone"/>
+
+    </com.cyy.loading.loading.LoadingProgressLayout>
+
+
+    <com.cyy.loading.loading.LoadingProgress
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="16dp" />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#00ff00"/>
+
+</LinearLayout>
