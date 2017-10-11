@@ -96,6 +96,7 @@ private class LoadingProgressDrawable : Drawable() {
     private var sweepAngle:Float = 0f
     private val rectF:RectF = RectF()
     private var spotOffset = 10
+    private var minSpotStrokeWidth = 4 //最小的
 
 //    /**
 //     * 控制画风格  偶数为弧度增加 奇数为弧度减少
@@ -136,7 +137,7 @@ private class LoadingProgressDrawable : Drawable() {
     override fun draw(canvas: Canvas) {
         val count = canvas.save()
         val rotate = rotateAngle
-//        canvas.rotate(rotate, rectF.centerX() , rectF.centerY())
+        canvas.rotate(rotate, rectF.centerX() , rectF.centerY())
 
         val angle = drawProgressBar(canvas)
         drawSpot(canvas , angle)
@@ -164,7 +165,7 @@ private class LoadingProgressDrawable : Drawable() {
     private fun drawSpot(canvas: Canvas , angle: Angle){
         val count = canvas.save()
         canvas.translate(rectF.centerX() , rectF.centerY())
-        drawPoints(canvas , angle.start , 0f)
+        drawPoints(canvas , angle.start , angle.sweep)
         canvas.restoreToCount(count)
     }
 
@@ -174,8 +175,19 @@ private class LoadingProgressDrawable : Drawable() {
      * 根据点点的位置设置制定的大小
      */
     private fun drawPoints(canvas: Canvas, start:Float ,sweep: Float){
-        var  a = beginAngle
+        if (start - 360 > beginAngle){
+            drawSpotWhenDecrease(canvas , start , sweep)
+        }else{
+            //第一圈
+            drawSpotWhenIncrease(canvas , start , sweep)
+        }
+    }
 
+    /**
+     * 画出第一圈的点点
+     */
+    private fun drawSpotWhenIncrease(canvas: Canvas, start:Float ,sweep: Float) {
+        var  a = beginAngle
         //计算能话多少个点点
         var count = ((start - a)/spotOffset).toInt()
         count = when{
@@ -190,6 +202,7 @@ private class LoadingProgressDrawable : Drawable() {
             if (a > start){
                 break
             }
+
             //计算点点的X Y
             val radus = rectF.centerX()-strokeWidth
             val radians = Math.toRadians(a.toDouble())
@@ -198,14 +211,45 @@ private class LoadingProgressDrawable : Drawable() {
             //点点的宽度递增
             spotPaint.strokeWidth = strokeWidth * i.toFloat()/count
             canvas.drawPoint(startX.toFloat() , startY.toFloat() , spotPaint)
-
+            i ++
             if (a - 360 > beginAngle){
                 break
             }
-            i ++
+        }
+    }
+
+    private fun drawSpotWhenDecrease(canvas: Canvas, start:Float ,sweep: Float){
+
+        var a = 720 + beginAngle
+
+        //计算能话多少个点点
+        var count = ((a - start)/spotOffset).toInt()
+        val maxCount = 360/spotOffset
+        count = when{
+            count>maxCount-> 360/spotOffset
+            else -> count
         }
 
-        log("connt == $count  i == $i")
+        val maxStroke = count.toFloat()/maxCount*(strokeWidth-minSpotStrokeWidth) + minSpotStrokeWidth
+
+        var i = 0
+
+        while (a>start){
+            a -= spotOffset
+            if (a < start){
+                break
+            }
+            //计算点点的X Y
+            val radus = rectF.centerX()-strokeWidth
+            val radians = Math.toRadians(a.toDouble())
+            val startX = Math.cos(radians)*radus
+            val startY = Math.sin(radians)*radus
+
+            spotPaint.strokeWidth = maxStroke - maxStroke * i.toFloat()/count
+            log("spotPaint.strokeWidth === ${spotPaint.strokeWidth}")
+            canvas.drawPoint(startX.toFloat() , startY.toFloat() , spotPaint)
+            i++
+        }
     }
 
     override fun setAlpha(alpha: Int) {
