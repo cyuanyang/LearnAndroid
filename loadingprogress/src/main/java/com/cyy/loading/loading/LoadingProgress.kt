@@ -6,7 +6,6 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.support.v4.app.ActivityCompat
-import android.support.v4.view.ViewCompat
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -156,21 +155,18 @@ private class LoadingProgressDrawable : Drawable() {
     }
 
     fun genSpotPoints(start:Float , sweep: Float):FloatArray{
-
-        val points = arrayListOf<Float>()
-
-        var  a = beginAngle
-        while (a < start ){
-            a += 10
-            log("a === $a")
-            val radus = rectF.centerX()-strokeWidth
-            val startX = Math.cos(Math.toRadians(a.toDouble()))*radus
-            val startY = Math.sin(Math.toRadians(a.toDouble()))*radus
-            points.add(startX.toFloat() )
-            points.add(startY.toFloat())
-        }
-
-        return points.toFloatArray()
+        return arrayListOf<Float>().apply {
+            var  a = beginAngle
+            while (a < start ){
+                a += 10
+                log("a === $a")
+                val radus = rectF.centerX()-strokeWidth
+                val startX = Math.cos(Math.toRadians(a.toDouble()))*radus
+                val startY = Math.sin(Math.toRadians(a.toDouble()))*radus
+                add(startX.toFloat() )
+                add(startY.toFloat())
+            }
+        }.toFloatArray()
     }
 
     override fun setAlpha(alpha: Int) {
