@@ -26,7 +26,6 @@ class LoadingProgressLayout @JvmOverloads constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
-
 }
 
 /**
@@ -35,7 +34,9 @@ class LoadingProgressLayout @JvmOverloads constructor(
 class LoadingProgress @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
+
     private var progressDrawable = LoadingProgressDrawable()
+    private var isRunning = false
 
     init {
         progressDrawable.strokeWidth = dp2px(3)
@@ -56,12 +57,16 @@ class LoadingProgress @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        start()
+        if (visibility != View.VISIBLE || windowVisibility != View.VISIBLE) {
+            return
+        }
+        if (!isRunning){
+            start()
+        }
     }
 
     fun setProgressLevel(level: Int){
         progressDrawable.level = level
-        log("level === $level")
         postInvalidateOnAnimation()
     }
 
@@ -69,7 +74,10 @@ class LoadingProgress @JvmOverloads constructor(
         progressDrawable.rotateAngle = angle
     }
 
-    private fun start(){
+    fun start(){
+        if (isRunning){
+            return
+        }
         val oa = ObjectAnimator.ofInt(this , "progressLevel" , 0 ,10000 )
         oa.duration = 3000
         oa.repeatMode = ValueAnimator.RESTART
@@ -83,8 +91,18 @@ class LoadingProgress @JvmOverloads constructor(
         rotateOa.repeatCount = ValueAnimator.INFINITE
         rotateOa.interpolator = LinearInterpolator()
         rotateOa.start()
+
+        isRunning = true
     }
 
+    public fun stop(){
+        isRunning = true
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        stop()
+    }
 }
 
 
