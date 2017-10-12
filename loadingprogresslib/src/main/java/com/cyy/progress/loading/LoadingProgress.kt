@@ -6,6 +6,7 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.support.v4.app.ActivityCompat
 import android.util.AttributeSet
 import android.view.View
@@ -80,7 +81,12 @@ class LoadingProgress constructor(
 
     private fun setProgressLevel(level: Int){
         progressDrawable.level = level
-        postInvalidateOnAnimation()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+            postInvalidateOnAnimation()
+        }else{
+            invalidate()
+        }
+
     }
 
     private fun setProgressRotateAngle(angle:Float){
