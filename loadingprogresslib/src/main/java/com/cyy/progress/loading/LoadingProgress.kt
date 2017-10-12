@@ -1,8 +1,9 @@
 package com.cyy.progress.loading
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
-import android.content.res.TypedArray
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.support.v4.app.ActivityCompat
@@ -31,6 +32,12 @@ class LoadingProgress constructor(
     private var isRunning = false
     private var progressAnimate:ValueAnimator? = null //进度条动画
     private var rotateAnimate:ValueAnimator? = null //旋转动画
+    private var isAutoRunning = true //显示的时候自动开始
+    private var isReset = false
+
+    private var atOnceEnd = false  //调用reset的时候立刻结束
+
+    var listener:ProgressListener? = null
 
     init {
         var color = ActivityCompat.getColor(context , android.R.color.holo_red_light)
@@ -39,6 +46,8 @@ class LoadingProgress constructor(
             val a = context.obtainStyledAttributes(attrs , R.styleable.LoadingProgress)
             color = a.getColor(R.styleable.LoadingProgress_c_progressColor , color)
             strokeWidth = a.getDimension(R.styleable.LoadingProgress_c_strokeWidth , strokeWidth)
+            isAutoRunning = a.getBoolean(R.styleable.LoadingProgress_c_autoRunning , isAutoRunning)
+            atOnceEnd = a.getBoolean(R.styleable.LoadingProgress_c_atOnceEnd , atOnceEnd)
             a.recycle()
         }
 
@@ -64,21 +73,25 @@ class LoadingProgress constructor(
         if (visibility != View.VISIBLE || windowVisibility != View.VISIBLE) {
             return
         }
-        if (!isRunning){
+        if (!isRunning && isAutoRunning){
             start()
         }
     }
 
-    fun setProgressLevel(level: Int){
+    private fun setProgressLevel(level: Int){
         progressDrawable.level = level
         postInvalidateOnAnimation()
     }
 
-    fun setProgressRotateAngle(angle:Float){
+    private fun setProgressRotateAngle(angle:Float){
         progressDrawable.rotateAngle = angle
     }
 
+    /**
+     * 开始动画
+     */
     fun start(){
+        listener?.onProgressStartListener(this)
         startAnimtor()
     }
 
@@ -97,6 +110,24 @@ class LoadingProgress constructor(
             setProgressLevel(value)
         }
 
+        progressAnimate!!.addListener(object : AnimatorListenerAdapter(){
+            override fun onAnimationRepeat(animation: Animator?) {
+                if (isReset){
+                    stop()
+                }else{
+                    listener?.onProgressRepeatListener(this@LoadingProgress)
+                }
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+                super.onAnimationEnd(animation)
+
+                log("onAnimationEnd")
+
+                listener?.onProgressEndListener(this@LoadingProgress)
+            }
+        })
+
         rotateAnimate = ValueAnimator.ofFloat( 0f ,360f )
         rotateAnimate!!.duration = 6000
         rotateAnimate!!.repeatMode = ValueAnimator.RESTART
@@ -111,12 +142,36 @@ class LoadingProgress constructor(
         isRunning = true
     }
 
-    fun stop(){
-        isRunning = true
+    /**
+     * 立刻停止动画
+     */
+    private fun stop(){
+        if (isRunning){
+            progressAnimate?.cancel()
+            rotateAnimate?.cancel()
+            isRunning = false
+            isReset = false
+        }
+    }
+
+    private fun end(){
+        if (isRunning){
+            progressAnimate?.end()
+            rotateAnimate?.end()
+            isRunning = false
+            isReset = false
+        }
     }
 
     fun reset(){
-
+        if (isRunning){
+            listener?.onProgressResetListener(this)
+            if (atOnceEnd){
+                end()
+            }else{
+                isReset = true
+            }
+        }
     }
 
     override fun onDetachedFromWindow() {

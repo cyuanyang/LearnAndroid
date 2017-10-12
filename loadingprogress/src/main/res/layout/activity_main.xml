@@ -3,10 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.cyy.loading.MainActivity"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:gravity="center_horizontal">
+    tools:context="com.cyy.loading.MainActivity">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="20dp"
+        android:text="调用reset后,立刻停止: c_atOnceEnd=ture" />
 
     <FrameLayout
         android:id="@+id/headerLayout"
@@ -14,29 +20,70 @@
         android:layout_height="80dp"
         android:layout_marginTop="16dp"
         android:background="#00ff00">
-        <com.cyy.progress.loading.LoadingProgress
-            xmlns:app="http://schemas.android.com/apk/res-auto"
+
+        <com.cyy.progress.loading.LoadingProgress xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/loadingProgress"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            app:c_atOnceEnd="true"
+            app:c_autoRunning="false"
             app:c_progressColor="@color/colorPrimaryDark"
-            app:c_strokeWidth="3dp"
-            />
+            app:c_strokeWidth="3dp" />
+
         <view
             class="de.hdodenhof.circleimageview.CircleImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="6dp"
-            android:src="@mipmap/header"/>
+            android:src="@mipmap/header" />
+
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="20dp"
+        android:text="调用reset后,将这次动画完成后停止: c_atOnceEnd=false" />
+
+    <FrameLayout
+        android:id="@+id/headerLayout2"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="16dp"
+        android:background="#00ff00">
+
+        <com.cyy.progress.loading.LoadingProgress xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/loadingProgress2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:c_atOnceEnd="false"
+            app:c_autoRunning="false"
+            app:c_progressColor="@color/colorPrimaryDark"
+            app:c_strokeWidth="3dp" />
+
+        <view
+            class="de.hdodenhof.circleimageview.CircleImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="6dp"
+            android:src="@mipmap/header" />
 
     </FrameLayout>
 
 
-    <com.cyy.progress.loading.LoadingProgress
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="20dp"
+        android:text="进度条模式的：" />
+
+    <com.cyy.progress.loading.LoadingProgress xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginTop="16dp"
         app:c_progressColor="@color/colorAccent"
-        app:c_strokeWidth="5dp"/>
+        app:c_strokeWidth="5dp" />
 
 </LinearLayout>

@@ -4,5 +4,7 @@
     <declare-styleable name="LoadingProgress">
         <attr name="c_progressColor" format="color"/>
         <attr name="c_strokeWidth" format="dimension"/>
+        <attr name="c_autoRunning" format="boolean"/>
+        <attr name="c_atOnceEnd" format="boolean"/>
     </declare-styleable>
 </resources>
