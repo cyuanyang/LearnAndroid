@@ -17,6 +17,12 @@
 
 #### 使用
 
+```
+compile(name:'loadingprogresslib-release-1.0', ext:'aar')
+```
+
+[arr下载](./arr/1.0/loadingprogresslib-release-1.0.aar)
+
 自定义的属性
 
 ```

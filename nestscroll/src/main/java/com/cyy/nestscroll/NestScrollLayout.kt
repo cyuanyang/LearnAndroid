@@ -21,18 +21,18 @@ class NestScrollLayout:LinearLayout , NestedScrollingParent{
         isNestedScrollingEnabled = true
     }
 
-    override fun onNestedScrollAccepted(child: View?, target: View?, axes: Int) {
-        super.onNestedScrollAccepted(child, target, axes)
-    }
-
-    override fun onStartNestedScroll(child: View?, target: View?, nestedScrollAxes: Int): Boolean {
-        return true
-    }
-
-    override fun onNestedScroll(target: View?, dxConsumed: Int, dyConsumed: Int, dxUnconsumed: Int, dyUnconsumed: Int) {
-        super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed)
-
-        Log.e("dddddddd" , "5555")
-    }
+//    override fun onNestedScrollAccepted(child: View?, target: View?, axes: Int) {
+//        super.onNestedScrollAccepted(child, target, axes)
+//    }
+//
+//    override fun onStartNestedScroll(child: View?, target: View?, nestedScrollAxes: Int): Boolean {
+//        return true
+//    }
+//
+//    override fun onNestedScroll(target: View?, dxConsumed: Int, dyConsumed: Int, dxUnconsumed: Int, dyUnconsumed: Int) {
+//        super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed)
+//
+//        Log.e("dddddddd" , "5555")
+//    }
 
 }
