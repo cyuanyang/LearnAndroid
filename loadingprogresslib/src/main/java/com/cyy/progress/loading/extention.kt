@@ -1,4 +1,4 @@
-package com.cyy.loading.loading
+package com.cyy.progress.loading
 
 import android.util.Log
 import android.util.TypedValue

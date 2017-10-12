@@ -15,7 +15,7 @@
         android:layout_height="80dp"
         android:layout_marginTop="16dp"
         android:background="#00ff00">
-        <com.cyy.loading.loading.LoadingProgress
+        <com.cyy.progress.loading.LoadingProgress
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
         <view
@@ -28,11 +28,9 @@
     </FrameLayout>
 
 
-    <com.cyy.loading.loading.LoadingProgress
+    <com.cyy.progress.loading.LoadingProgress
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginTop="16dp" />
-
-
-
+    
 </LinearLayout>

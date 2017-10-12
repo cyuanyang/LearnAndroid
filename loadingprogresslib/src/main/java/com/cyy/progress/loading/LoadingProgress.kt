@@ -1,6 +1,5 @@
-package com.cyy.loading.loading
+package com.cyy.progress.loading
 
-import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
@@ -10,23 +9,11 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.LinearInterpolator
-import android.widget.FrameLayout
-import com.cyy.loading.R
-
 
 /**
  * Created by cyy on 17/10/10.
  *
  */
-
-class LoadingProgressLayout @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr) {
-
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-    }
-}
 
 /**
  * 旋转的进度条View
@@ -37,10 +24,12 @@ class LoadingProgress @JvmOverloads constructor(
 
     private var progressDrawable = LoadingProgressDrawable()
     private var isRunning = false
+    private var progressAnimate:ValueAnimator? = null //进度条动画
+    private var rotateAnimate:ValueAnimator? = null //旋转动画
 
     init {
         progressDrawable.strokeWidth = dp2px(3)
-        progressDrawable.setColorFilter(ActivityCompat.getColor(context , R.color.colorAccent) ,PorterDuff.Mode.SRC )
+        progressDrawable.setColorFilter(ActivityCompat.getColor(context , android.R.color.holo_red_light) ,PorterDuff.Mode.SRC )
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -75,28 +64,44 @@ class LoadingProgress @JvmOverloads constructor(
     }
 
     fun start(){
+        startAnimtor()
+    }
+
+    private fun startAnimtor(){
         if (isRunning){
             return
         }
-        val oa = ObjectAnimator.ofInt(this , "progressLevel" , 0 ,10000 )
-        oa.duration = 3000
-        oa.repeatMode = ValueAnimator.RESTART
-        oa.repeatCount = ValueAnimator.INFINITE
-        oa.interpolator = AccelerateDecelerateInterpolator()
-        oa.start()
+        progressAnimate = ValueAnimator.ofInt( 0 , 10000 )
+        progressAnimate!!.duration = 3000
+        progressAnimate!!.repeatMode = ValueAnimator.RESTART
+        progressAnimate!!.repeatCount = ValueAnimator.INFINITE
+        progressAnimate!!.interpolator = AccelerateDecelerateInterpolator()
+        progressAnimate!!.start()
+        progressAnimate!!.addUpdateListener {
+            val value = it.animatedValue as Int
+            setProgressLevel(value)
+        }
 
-        val rotateOa = ObjectAnimator.ofFloat(this , "progressRotateAngle" , 0f ,360f )
-        rotateOa.duration = 6000
-        rotateOa.repeatMode = ValueAnimator.RESTART
-        rotateOa.repeatCount = ValueAnimator.INFINITE
-        rotateOa.interpolator = LinearInterpolator()
-        rotateOa.start()
+        rotateAnimate = ValueAnimator.ofFloat( 0f ,360f )
+        rotateAnimate!!.duration = 6000
+        rotateAnimate!!.repeatMode = ValueAnimator.RESTART
+        rotateAnimate!!.repeatCount = ValueAnimator.INFINITE
+        rotateAnimate!!.interpolator = LinearInterpolator()
+        rotateAnimate!!.start()
+        rotateAnimate!!.addUpdateListener {
+            val value = it.animatedValue as Float
+            setProgressRotateAngle(value)
+        }
 
         isRunning = true
     }
 
-    public fun stop(){
+    fun stop(){
         isRunning = true
+    }
+
+    fun reset(){
+
     }
 
     override fun onDetachedFromWindow() {
@@ -165,7 +170,7 @@ private class LoadingProgressDrawable : Drawable() {
     /**
      * 画进度条
      */
-    private fun drawProgressBar(canvas: Canvas):Angle{
+    private fun drawProgressBar(canvas: Canvas): Angle {
         sweepAngle = 720f * level/10000 + orginSweepAngle
         var actualSweepAngle = sweepAngle
         if (actualSweepAngle>360){
