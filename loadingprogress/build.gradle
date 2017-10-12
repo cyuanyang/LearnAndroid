@@ -41,7 +41,7 @@ dependencies {
     })
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     compile 'de.hdodenhof:circleimageview:2.1.0'
-//    implementation project(':loadingprogresslib')
-    compile(name:'loadingprogresslib-release-1.0', ext:'aar')
+    implementation project(':loadingprogresslib')
+//    compile(name:'loadingprogresslib-release-1.0', ext:'aar')
 
 }

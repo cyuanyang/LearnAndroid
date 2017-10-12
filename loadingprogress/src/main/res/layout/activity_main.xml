@@ -85,6 +85,7 @@
         android:layout_height="80dp"
         android:layout_marginTop="16dp"
         app:c_progressColor="@color/colorAccent"
-        app:c_strokeWidth="5dp" />
+        app:c_strokeWidth="5dp"
+        app:c_progressDuration="5000"/>
 
 </LinearLayout>

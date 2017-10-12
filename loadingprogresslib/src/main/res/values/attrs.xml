@@ -6,5 +6,7 @@
         <attr name="c_strokeWidth" format="dimension"/>
         <attr name="c_autoRunning" format="boolean"/>
         <attr name="c_atOnceEnd" format="boolean"/>
+        <attr name="c_progressDuration" format="integer"/>
+        <attr name="c_rotateDuration" format="integer"/>
     </declare-styleable>
 </resources>

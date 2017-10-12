@@ -35,6 +35,8 @@ class LoadingProgress constructor(
     private var rotateAnimate:ValueAnimator? = null //旋转动画
     private var isAutoRunning = true //显示的时候自动开始
     private var isReset = false
+    private var progressDuration = 3000L //进度条的时间
+    private var rotateDuration = 6000L //旋转的时间
 
     private var atOnceEnd = false  //调用reset的时候立刻结束
 
@@ -49,12 +51,17 @@ class LoadingProgress constructor(
             strokeWidth = a.getDimension(R.styleable.LoadingProgress_c_strokeWidth , strokeWidth)
             isAutoRunning = a.getBoolean(R.styleable.LoadingProgress_c_autoRunning , isAutoRunning)
             atOnceEnd = a.getBoolean(R.styleable.LoadingProgress_c_atOnceEnd , atOnceEnd)
+
+            progressDuration = a.getInteger(R.styleable.LoadingProgress_c_progressDuration ,
+                    progressDuration.toInt()).toLong()
+
+            rotateDuration = a.getInteger(R.styleable.LoadingProgress_c_rotateDuration ,
+                    rotateDuration.toInt()).toLong()
             a.recycle()
         }
 
         progressDrawable.strokeWidth = strokeWidth
         progressDrawable.setColorFilter(color ,PorterDuff.Mode.SRC )
-
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -106,7 +113,7 @@ class LoadingProgress constructor(
             return
         }
         progressAnimate = ValueAnimator.ofInt( 0 , 10000 )
-        progressAnimate!!.duration = 3000
+        progressAnimate!!.duration = progressDuration
         progressAnimate!!.repeatMode = ValueAnimator.RESTART
         progressAnimate!!.repeatCount = ValueAnimator.INFINITE
         progressAnimate!!.interpolator = AccelerateDecelerateInterpolator()
@@ -135,7 +142,7 @@ class LoadingProgress constructor(
         })
 
         rotateAnimate = ValueAnimator.ofFloat( 0f ,360f )
-        rotateAnimate!!.duration = 6000
+        rotateAnimate!!.duration = rotateDuration
         rotateAnimate!!.repeatMode = ValueAnimator.RESTART
         rotateAnimate!!.repeatCount = ValueAnimator.INFINITE
         rotateAnimate!!.interpolator = LinearInterpolator()
