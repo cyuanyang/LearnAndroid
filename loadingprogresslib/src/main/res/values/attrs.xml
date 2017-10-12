@@ -2,6 +2,7 @@
 <resources>
 
     <declare-styleable name="LoadingProgress">
-        <attr name="progressColor" format="color"/>
+        <attr name="c_progressColor" format="color"/>
+        <attr name="c_strokeWidth" format="dimension"/>
     </declare-styleable>
 </resources>

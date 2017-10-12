@@ -2,6 +2,7 @@ package com.cyy.progress.loading
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.TypedArray
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.support.v4.app.ActivityCompat
@@ -9,6 +10,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.LinearInterpolator
+import com.cyy.progress.R
 
 /**
  * Created by cyy on 17/10/10.
@@ -18,9 +20,12 @@ import android.view.animation.LinearInterpolator
 /**
  * 旋转的进度条View
  */
-class LoadingProgress @JvmOverloads constructor(
+class LoadingProgress constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
+
+    constructor(context: Context):this(context , null )
+    constructor(context: Context , attrs: AttributeSet?):this(context , attrs , 0)
 
     private var progressDrawable = LoadingProgressDrawable()
     private var isRunning = false
@@ -28,8 +33,18 @@ class LoadingProgress @JvmOverloads constructor(
     private var rotateAnimate:ValueAnimator? = null //旋转动画
 
     init {
-        progressDrawable.strokeWidth = dp2px(3)
-        progressDrawable.setColorFilter(ActivityCompat.getColor(context , android.R.color.holo_red_light) ,PorterDuff.Mode.SRC )
+        var color = ActivityCompat.getColor(context , android.R.color.holo_red_light)
+        var strokeWidth = dp2px(3)
+        if (attrs!=null){
+            val a = context.obtainStyledAttributes(attrs , R.styleable.LoadingProgress)
+            color = a.getColor(R.styleable.LoadingProgress_c_progressColor , color)
+            strokeWidth = a.getDimension(R.styleable.LoadingProgress_c_strokeWidth , strokeWidth)
+            a.recycle()
+        }
+
+        progressDrawable.strokeWidth = strokeWidth
+        progressDrawable.setColorFilter(color ,PorterDuff.Mode.SRC )
+
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
