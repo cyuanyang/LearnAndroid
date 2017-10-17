@@ -61,14 +61,14 @@ class RefreshLayout @JvmOverloads constructor(
 
     private var mLastMotionY:Float = 0F //上一次的位置
     private var mIsBeginDrag = false  //开始拖动 会拦截事件
-    private var state:RefreshState = RefreshState.IDLE
+    internal var state:RefreshState = RefreshState.IDLE
     internal var mHeaderHeight = 0 //头部的高度
 
 
     var mScrollCallback:ScrollCallback? = null
     var mRefreshListener:RefreshListener? = null
 
-    var scrollState:ScrollState = ScrollState.IDEA
+    internal var scrollState:ScrollState = ScrollState.IDEA
 
     init { }
 
@@ -79,7 +79,6 @@ class RefreshLayout @JvmOverloads constructor(
         }
 
         mContentView = getChildAt(0)
-//        (mContentView as? ListView)?.overScrollMode = View.OVER_SCROLL_NEVER
     }
 
     private fun addHeaderLayout(refreshHeader:RefreshHeader){
@@ -333,7 +332,6 @@ class RefreshLayout @JvmOverloads constructor(
         dispatchRefreshStateChanged(state)
         log("结束刷新")
         smoothScrollTo(0)
-
     }
 }
 

@@ -5,7 +5,6 @@ import android.support.v4.view.ViewCompat
 import android.view.VelocityTracker
 import android.view.MotionEvent
 import android.view.ViewConfiguration
-import android.widget.ListView
 import android.widget.Scroller
 import android.widget.ScrollView
 import android.os.Build
@@ -19,13 +18,13 @@ import android.widget.AbsListView
  */
 internal class RefreshLayoutHelper(context:Context) {
 
-    val MIN_VELOCITY = ViewConfiguration.get(context).scaledMinimumFlingVelocity
-    val MXN_VELOCITY = ViewConfiguration.get(context).scaledMaximumFlingVelocity
+    private val MIN_VELOCITY = ViewConfiguration.get(context).scaledMinimumFlingVelocity
+    private val MXN_VELOCITY = ViewConfiguration.get(context).scaledMaximumFlingVelocity
 
-    val mScroller = Scroller(context)
-    var mVelocityTracker: VelocityTracker? = null
+    private val mScroller = Scroller(context)
+    private var mVelocityTracker: VelocityTracker? = null
 
-    var mLastY = 0
+    private var mLastY = 0
 
     fun initVelocityTrackerIfNotExists(event: MotionEvent) {
         if (mVelocityTracker == null) {
@@ -59,6 +58,13 @@ internal class RefreshLayoutHelper(context:Context) {
      * 同时终止向ContentView分发事件
      */
     fun computeScroll(refreshLayout: RefreshLayout){
+
+        //如果不处在刷新的状态则 不再处理fling
+        if (refreshLayout.state == RefreshState.IDLE){
+            mScroller.abortAnimation()
+            refreshLayout.scrollState = ScrollState.IDEA
+        }
+
         if (mScroller.computeScrollOffset()){
             val currY = mScroller.currY
             var deltaY = (currY - mLastY)
@@ -79,10 +85,8 @@ internal class RefreshLayoutHelper(context:Context) {
                 if (deltaY<0){
                     val distance = mScroller.finalY - currY
                     val duration = mScroller.getDuration()- mScroller.timePassed()
-                    //test : we presume that content is a list view
-                    val listView = refreshLayout.mContentView as ListView
 
-                    smoothScrollBy(listView , mScroller.currVelocity.toInt(), distance, duration)
+                    smoothScrollBy(refreshLayout.mContentView!!, mScroller.currVelocity.toInt(), distance, duration)
                     mScroller.abortAnimation()
                 }else{
                     //3.
@@ -102,13 +106,12 @@ internal class RefreshLayoutHelper(context:Context) {
     }
 
     //这里控制内容View的Fling 动作
-    fun smoothScrollBy(scrollableView: View, velocityY: Int, distance: Int, duration: Int) {
+    private fun smoothScrollBy(scrollableView: View, velocityY: Int, distance: Int, duration: Int) {
         if (scrollableView is AbsListView) {
-            val absListView = scrollableView
             if (Build.VERSION.SDK_INT >= 21) {
-                absListView.fling(velocityY)
+                scrollableView.fling(velocityY)
             } else {
-                absListView.smoothScrollBy(distance, duration)
+                scrollableView.smoothScrollBy(distance, duration)
             }
         } else if (scrollableView is ScrollView) {
             scrollableView.fling(velocityY)
@@ -121,7 +124,6 @@ internal class RefreshLayoutHelper(context:Context) {
             val vy = it.yVelocity
             if (Math.abs(vy) > MIN_VELOCITY){
                 mLastY = startY
-                log("flying  starty === $startY")
                 mScroller.fling(startX , startY ,0 , vy.toInt(), minX , maxX , minY , maxY)
             }
         }

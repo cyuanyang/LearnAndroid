@@ -21,7 +21,7 @@ class ListViewSimple : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_view_simple)
         refreshLayout.refreshHeader = ProgressHeaderLayout()
-        val datas = ( 0 until 1000).map { Model("cyy--$it" , it) }
+        val datas = ( 0 until 200).map { Model("cyy--$it" , it) }
         listView.adapter = MyAdapter(datas)
         refreshLayout.mRefreshListener = object : RefreshListener {
             override fun onRefresh(refreshLayout: RefreshLayout) {

@@ -7,7 +7,6 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Build
-import android.support.v4.app.ActivityCompat
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -43,7 +42,7 @@ class LoadingProgress constructor(
     var listener:ProgressListener? = null
 
     init {
-        var color = ActivityCompat.getColor(context , android.R.color.holo_red_light)
+        var color = resources.getColor(android.R.color.holo_red_light)
         var strokeWidth = dp2px(3)
         if (attrs!=null){
             val a = context.obtainStyledAttributes(attrs , R.styleable.LoadingProgress)

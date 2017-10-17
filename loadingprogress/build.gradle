@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.2"
@@ -45,3 +46,4 @@ dependencies {
 //    compile(name:'loadingprogresslib-release-1.0', ext:'aar')
 
 }
+
