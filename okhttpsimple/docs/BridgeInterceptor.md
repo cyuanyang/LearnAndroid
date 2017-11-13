@@ -13,6 +13,6 @@
 
 这个拦截器很简单 比较好的是它的Cookie的处理很巧妙
 
-CookieJar是一个接口实现saveFromResponse()存储cookie 实现loadForRequest()读取co0kie
+CookieJar是一个接口实现saveFromResponse()存储cookie 实现loadForRequest()读取cookie
 
 CookieJar这个对象为OkHttpClient持有，在构建BridgeInterceptor()传入的
