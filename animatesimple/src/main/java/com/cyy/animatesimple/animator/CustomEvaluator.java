@@ -108,7 +108,7 @@ public class CustomEvaluator extends Activity {
         public MyAnimationView(Context context) {
             super(context);
 
-            pathPaint = new Paint();
+            pathPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             pathPaint.setColor(Color.RED);
             pathPaint.setStrokeWidth(5);
             pathPaint.setStyle(Paint.Style.STROKE);

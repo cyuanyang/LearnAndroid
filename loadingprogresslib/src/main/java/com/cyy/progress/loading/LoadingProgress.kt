@@ -351,7 +351,6 @@ private class LoadingProgressDrawable : Drawable() {
             val startY = Math.sin(radians)*radus
 
             spotPaint.strokeWidth = maxStroke - maxStroke * i.toFloat()/count
-            log("spotPaint.strokeWidth === ${spotPaint.strokeWidth}")
             canvas.drawPoint(startX.toFloat() , startY.toFloat() , spotPaint)
             i++
         }
