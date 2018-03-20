@@ -33,11 +33,10 @@ public class SynchronizedTest {
                     if (finalI == 0){
                         view.say1(Thread.currentThread().getName());
                     }else if (finalI == 1){
-                        view.say2(Thread.currentThread().getName());
+                        view.say1(Thread.currentThread().getName());
                     }else {
-                        view1.say3(Thread.currentThread().getName());
+                        view.say3(Thread.currentThread().getName());
                     }
-
                 }
             } , "t-"+i);
             threads.add(t);
@@ -68,7 +67,7 @@ public class SynchronizedTest {
                     if (finalI == 0){
                         view.say4(Thread.currentThread().getName());
                     }else if (finalI == 1){
-                        view.say2(Thread.currentThread().getName());
+                        view.say1(Thread.currentThread().getName());
                     }else {
                         view1.say4(Thread.currentThread().getName());
                     }
@@ -76,6 +75,7 @@ public class SynchronizedTest {
                 }
             } , "t-"+i);
             threads.add(t);
+
         }
 
         for (Thread thread: threads) {
