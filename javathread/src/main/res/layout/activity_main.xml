@@ -21,6 +21,22 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="ReentrantLock"/>
+                <Button
+                    android:id="@+id/writeLockBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="WriteLock"/>
+                <Button
+                    android:id="@+id/readLockBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ReadLock"/>
+
+                <Button
+                    android:id="@+id/readWriteLockBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="readWriteLockBtn"/>
             </LinearLayout>
         </HorizontalScrollView>
 
