@@ -155,6 +155,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 writeSomething();
             }
         }, "t3").start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                readSomething();
+            }
+        }, "t4").start();
     }
 
     @Override
@@ -193,42 +199,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         try {
             Thread.sleep(100);
+            sendMessage(Thread.currentThread().getName() + " doSomething");
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }finally {
+            lock.unlock();
         }
-
-        sendMessage(Thread.currentThread().getName() + " doSomething");
-
-        lock.unlock();
     }
 
     private void readSomething() {
         readWriteLock.readLock().lock();
-        Iterator<String> iterator = cacheList.iterator();
-        while (iterator.hasNext()) {
-            try {
+        try {
+            Iterator<String> iterator = cacheList.iterator();
+            while (iterator.hasNext()) {
                 Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                sendMessage(Thread.currentThread().getName() + "读取 -- "+ iterator.next());
             }
-            sendMessage(Thread.currentThread().getName() + "读取 -- "+ iterator.next());
+        }catch (InterruptedException e) {
+            e.printStackTrace();
+        }finally {
+            readWriteLock.readLock().unlock();
         }
-        readWriteLock.readLock().unlock();
     }
 
     private void writeSomething() {
-
         readWriteLock.writeLock().lock();
-        for (int i = 0; i < 10; i++) {
-            try {
+        try{
+            for (int i = 0; i < 10; i++) {
                 Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                cacheList.add("这是第" + i + "元素");
+                sendMessage(Thread.currentThread().getName() + "写入---这是第" + i + "元素");
             }
-            cacheList.add("这是第" + i + "元素");
-            sendMessage(Thread.currentThread().getName() + "写入---这是第" + i + "元素");
+        }catch (InterruptedException e) {
+            e.printStackTrace();
+        }finally {
+            readWriteLock.writeLock().unlock();
         }
-        readWriteLock.writeLock().unlock();
     }
 
 
