@@ -55,6 +55,15 @@ public abstract class SimpleActivity extends AppCompatActivity implements View.O
         });
     }
 
+    public void outputMsgSafely(final String msg){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                outputMsg(msg);
+            }
+        });
+    }
+
     public void clearOutput(){
         contentLayout.removeAllViews();
     }
