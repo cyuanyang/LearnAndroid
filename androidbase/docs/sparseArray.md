@@ -53,11 +53,9 @@ SparseArrays将整数映射到对象。与普通的对象数组不同，索引�
 04-13 19:14:52.323 2656-2656/ E/TAG: key = 19 p =name =19
 ```
 
-实现原理：
+实现原理：使用两个数组，一个int数组，存放int类型key ，一个是Object的数组，存放value。
 
-使用两个数组，一个int数组，存放int类型key ，一个是Object的数组，存放value。
-
-重要的几个API
+重要的几个API使用
 ```
     SparseArray<Person> sparseArray = new SparseArray<>();
     //增
@@ -97,56 +95,166 @@ SparseArrays将整数映射到对象。与普通的对象数组不同，索引�
     Log.e("TAG" , "size ==" + sparseArray.size());
  
 ```
+##### put get delete的具体实现
 
-put的实现
+######put的实现会用到几个重要方法 
+
+1.ContainerHelpers.binarySearch()
+
+2.gc()
+
+3.GrowingArrayUtils.insert()
+
 ```
     public void put(int key, E value) {
-        //二分查找是否存在改key
+        //二分查找是否存在该key，没有值就返回一负数，原因在binarySearch返回值处有分析
         int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
-
+        //如果存在在更新该value，不存在则插入
         if (i >= 0) {
             mValues[i] = value;
         } else {
+            //取非得到key要插入的位置，原因在binarySearch返回值处有分析
             i = ~i;
-
+            //如果数组够大且当前索引所在的值为DELETED，直接插进去
             if (i < mSize && mValues[i] == DELETED) {
                 mKeys[i] = key;
                 mValues[i] = value;
                 return;
             }
-
+            //mGarbage只有在删除后才会为true ，
+            //这里为什么这样处理呢？因为元素在数组中是一个接着一个的，插入之前如果有删除操作，就会出现中断，
+            //gc方法并不是回收方法，它把删除后不连续的元素变成连续的元素。
             if (mGarbage && mSize >= mKeys.length) {
                 gc();
 
-                // Search again because indices may have changed.
+                // gc方法可能会引起索引变化，这里重新执行一下搜索
                 i = ~ContainerHelpers.binarySearch(mKeys, mSize, key);
             }
-
+            //插入新值到key数组和value数组。
             mKeys = GrowingArrayUtils.insert(mKeys, mSize, i, key);
             mValues = GrowingArrayUtils.insert(mValues, mSize, i, value);
             mSize++;
         }
     }
-    
-    //二分查找
+ ```
+ binarySearch方法：
+ ```
+    //二分查找 找到value在数组中的位置，应为数组中的值是按大小有序排列的 所以可以直接用二分查
     static int binarySearch(int[] array, int size, int value) {
+        //低位索引
         int lo = 0;
+        //高位索引
         int hi = size - 1;
-
+        
         while (lo <= hi) {
+            //中间索引
             final int mid = (lo + hi) >>> 1;
+            //中间的值
             final int midVal = array[mid];
-
+            
             if (midVal < value) {
+                //中间的值小于目标值，则认为可能在右边，更新低位索引值为中间值前一个
                 lo = mid + 1;
             } else if (midVal > value) {
+                //中间的值大于于目标值，则认为可能在左边，更新高位索引值为中间值后一个
                 hi = mid - 1;
             } else {
+                //找到value 返回索引值
                 return mid;  // value found
             }
         }
+        /**
+         *没找到值为什么要取非返回呢。
+         *原因是为了实现没有找到，返回的索引值为负数。如果没有找到此时的lo肯定是下一个插入value所在的位置。
+         *加入数组中共有3个元素，没有找到目标value此时的lo肯定是 3，取非肯定是负数了。
+         **/
         return ~lo;  // value not present
+    }
+ ```
+ insert方法：
+ ```
+    //将元素插入到指定的数组当中，若指定的数组长度不够，则会创建一个新的数组
+    public static <T> T[] insert(T[] array, int currentSize, int index, T element) {
+        assert currentSize <= array.length;
+
+        if (currentSize + 1 <= array.length) {
+            System.arraycopy(array, index, array, index + 1, currentSize - index);
+            array[index] = element;
+            return array;
+        }
+
+        @SuppressWarnings("unchecked")
+        T[] newArray = ArrayUtils.newUnpaddedArray((Class<T>)array.getClass().getComponentType(),
+                growSize(currentSize));
+        System.arraycopy(array, 0, newArray, 0, index);
+        newArray[index] = element;
+        System.arraycopy(array, index, newArray, index + 1, array.length - index);
+        return newArray;
     }
     
 ```
+gc方法：
+```
+    //删除后才可能会调用 ，对数组元素重新排序
+    private void gc() {
+        // Log.e("SparseArray", "gc start with " + mSize);
+
+        int n = mSize;
+        int o = 0;
+        int[] keys = mKeys;
+        Object[] values = mValues;
+
+        for (int i = 0; i < n; i++) {
+            Object val = values[i];
+            //
+            if (val != DELETED) {
+                if (i != o) {
+                    keys[o] = keys[i];
+                    values[o] = val;
+                    values[i] = null;
+                }
+
+                o++;
+            }
+        }
+
+        mGarbage = false;
+        mSize = o;
+
+        // Log.e("SparseArray", "gc end with " + mSize);
+    }
+```
+
+###### get 的实现
+查询的时候先要得到对应的key在数组中索引，然后根据该索引返回value值。
+```
+    public E get(int key, E valueIfKeyNotFound) {
+        int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
+
+        if (i < 0 || mValues[i] == DELETED) {
+            return valueIfKeyNotFound;
+        } else {
+            return (E) mValues[i];
+        }
+    }
+```
+
+###### 删除实现
+```
+    public void delete(int key) {
+        int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
+
+        if (i >= 0) {
+            if (mValues[i] != DELETED) {
+                mValues[i] = DELETED;
+                mGarbage = true;
+            }
+        }
+    }
+```
+
+####### SparseArray与HashMap性能PK
+
+
+
 

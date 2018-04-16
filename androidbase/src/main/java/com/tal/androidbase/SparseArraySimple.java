@@ -1,8 +1,10 @@
 package com.tal.androidbase;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.util.SparseArrayCompat;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -19,7 +21,7 @@ public class SparseArraySimple extends Activity {
 
         setContentView(R.layout.layout_sparse_simple);
 
-        SparseArray<Person> sparseArray = new SparseArray<>();
+        SparseArrayCompat<Person> sparseArray = new SparseArrayCompat<>();
 
         Person person = new Person();
         person.name = "append";
@@ -44,9 +46,19 @@ public class SparseArraySimple extends Activity {
         sparseArray.append(200 , person);
         Log.e("TAG" , sparseArray.get(200).name);
 
-        sparseArray.delete(100);
+
+        sparseArray.put(1000 , person);
+        sparseArray.put(1001 , person);
+        sparseArray.put(1002 , person);
+        sparseArray.put(1003 , person);
+
+//        sparseArray.delete(100);
         sparseArray.remove(200);
+
+
         sparseArray.delete(1000);
+
+        sparseArray.put(1000 , person);
 
         Log.e("TAG" , "size ==" + sparseArray.size());
     }
