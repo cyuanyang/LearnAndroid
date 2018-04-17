@@ -97,7 +97,7 @@ SparseArrays将整数映射到对象。与普通的对象数组不同，索引�
 ```
 ##### put get delete的具体实现
 
-######put的实现会用到几个重要方法 
+###### put的实现会用到几个重要方法 
 
 1.ContainerHelpers.binarySearch()
 
@@ -191,37 +191,28 @@ SparseArrays将整数映射到对象。与普通的对象数组不同，索引�
         System.arraycopy(array, index, newArray, index + 1, array.length - index);
         return newArray;
     }
-    
 ```
 gc方法：
 ```
     //删除后才可能会调用 ，对数组元素重新排序
     private void gc() {
-        // Log.e("SparseArray", "gc start with " + mSize);
-
         int n = mSize;
         int o = 0;
         int[] keys = mKeys;
         Object[] values = mValues;
-
         for (int i = 0; i < n; i++) {
             Object val = values[i];
-            //
             if (val != DELETED) {
                 if (i != o) {
                     keys[o] = keys[i];
                     values[o] = val;
                     values[i] = null;
                 }
-
                 o++;
             }
         }
-
         mGarbage = false;
         mSize = o;
-
-        // Log.e("SparseArray", "gc end with " + mSize);
     }
 ```
 
@@ -253,8 +244,9 @@ gc方法：
     }
 ```
 
-####### SparseArray与HashMap性能PK
+###### SparseArray与HashMap性能PK
 
+put 
 
 
 
