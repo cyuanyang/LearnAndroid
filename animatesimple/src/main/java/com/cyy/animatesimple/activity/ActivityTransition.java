@@ -58,10 +58,10 @@ public class ActivityTransition extends Activity {
             R.id.ball,
             R.id.block,
             R.id.ducky,
-            R.id.jellies,
-            R.id.mug,
-            R.id.pencil,
-            R.id.scissors,
+            R.id.ball,
+            R.id.ball,
+            R.id.ball,
+            R.id.ball,
             R.id.woot,
     };
 
