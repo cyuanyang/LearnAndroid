@@ -18,6 +18,10 @@
         <activity android:name=".svganimate.SVGAnimations" />
         <activity android:name=".animator.PathAnimations" />
         <activity android:name=".animator.CustomEvaluator" />
+        <activity android:name=".activity.ActivityTransition"
+            android:theme="@style/ActivityTransitionTheme"/>
+        <activity android:name=".activity.ActivityTransitionDetails"
+            android:theme="@style/ActivityTransitionTheme"/>
     </application>
 
 </manifest>

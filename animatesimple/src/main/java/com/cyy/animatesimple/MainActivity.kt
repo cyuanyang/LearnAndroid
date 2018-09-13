@@ -3,6 +3,7 @@ package com.cyy.animatesimple
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.cyy.animatesimple.activity.ActivityTransition
 import com.cyy.animatesimple.animator.CustomEvaluator
 import com.cyy.animatesimple.svganimate.SVGAnimations
 import com.cyy.animatesimple.animator.PathAnimations
@@ -24,5 +25,8 @@ class MainActivity : AppCompatActivity() {
 
         customEvaluator.setOnClickListener {  startActivity(Intent(this , CustomEvaluator::class.java)) }
 
+        activityTransition.setOnClickListener {
+            startActivity(Intent(this , ActivityTransition::class.java))
+        }
     }
 }

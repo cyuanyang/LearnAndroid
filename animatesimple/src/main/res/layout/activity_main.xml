@@ -32,7 +32,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="custom Evaluator"/>
+
+            <Button
+                android:id="@+id/activityTransition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="activityTransition"/>
         </LinearLayout>
     </ScrollView>
+
 
 </android.support.constraint.ConstraintLayout>
