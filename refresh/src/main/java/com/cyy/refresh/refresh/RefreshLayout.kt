@@ -79,6 +79,7 @@ class RefreshLayout @JvmOverloads constructor(
         }
 
         mContentView = getChildAt(0)
+        mContentView?.overScrollMode = OVER_SCROLL_NEVER
     }
 
     private fun addHeaderLayout(refreshHeader:RefreshHeader){
@@ -240,6 +241,7 @@ class RefreshLayout @JvmOverloads constructor(
         if (getScrollEffectiveDistance()<-mHeaderHeight){
             realOffset *= dragRate
         }
+        log("realOffset =="+realOffset)
         scrollBy(0 , (realOffset).toInt())
     }
 

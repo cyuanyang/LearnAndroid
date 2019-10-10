@@ -8,6 +8,7 @@ import android.view.ViewConfiguration
 import android.widget.Scroller
 import android.widget.ScrollView
 import android.os.Build
+import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.AbsListView
 
@@ -115,6 +116,8 @@ internal class RefreshLayoutHelper(context:Context) {
             }
         } else if (scrollableView is ScrollView) {
             scrollableView.fling(velocityY)
+        } else if (scrollableView is RecyclerView){
+            scrollableView.fling(0, velocityY)
         }
     }
 

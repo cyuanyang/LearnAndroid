@@ -18,6 +18,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="SparseArray"/>
+
+
+            <com.tal.androidbase.DrawableView
+                android:layout_width="match_parent"
+                android:layout_height="200dp" />
         </LinearLayout>
 
     </ScrollView>

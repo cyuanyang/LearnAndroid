@@ -6,6 +6,7 @@ import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_main.*
 
 import com.cyy.refresh.simple.ListViewSimple
+import com.cyy.refresh.simple.RecycleViewSimple
 import com.cyy.refresh.simple.ScrollViewSimple
 
 
@@ -19,6 +20,7 @@ class MainActivity : AppCompatActivity() {
 
         scrollViewBtn.setOnClickListener { startActivity(Intent(this , ScrollViewSimple::class.java)) }
 
+        recycleBtn.setOnClickListener { startActivity(Intent(this, RecycleViewSimple::class.java)) }
 //        refreshLayout.refreshHeader = RefreshHeaderLayout(this)
 //
 //        val count = 1000

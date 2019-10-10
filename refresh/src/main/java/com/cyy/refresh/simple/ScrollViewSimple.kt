@@ -22,7 +22,7 @@ class ScrollViewSimple : AppCompatActivity() {
 
                 refreshLayout.postDelayed({
                     refreshLayout.endRefresh()
-                } , 2000)
+                } , 50000)
             }
         }
     }
